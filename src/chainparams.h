@@ -28,4 +28,7 @@ const CChainParams &Params();
  */
 void SelectParams(const ChainType chain);
 
+/** Check that the given heights make sense */
+bool CheckVBitsHeights(std::string& error, const Consensus::Params& consensus, int startheight, int timeoutheight);
+
 #endif // BITCOIN_CHAINPARAMS_H
