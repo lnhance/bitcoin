@@ -186,7 +186,7 @@ protected:
     int64_t EndTime(const Consensus::Params& params) const override { return params.vDeployments[id].nTimeout; }
     int MinActivationHeight(const Consensus::Params& params) const override { return params.vDeployments[id].min_activation_height; }
     int Period(const Consensus::Params& params) const override { return params.nMinerConfirmationWindow; }
-    int Threshold(const Consensus::Params& params) const override { return params.nRuleChangeActivationThreshold; }
+    int Threshold(const Consensus::Params& params) const override { return params.vDeployments[id].threshold; }
 
     bool Condition(const CBlockIndex* pindex, const Consensus::Params& params) const override
     {
