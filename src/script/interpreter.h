@@ -294,7 +294,7 @@ public:
          return false;
     }
 
-    virtual bool CheckDefaultCheckTemplateVerifyHash(const Span<const unsigned char>& hash) const
+    virtual bool CheckDefaultCheckTemplateVerifyHash(const Span<const unsigned char>& hash, ScriptExecutionData& execdata) const
     {
         return false;
     }
@@ -335,7 +335,7 @@ public:
     bool CheckSchnorrSignature(Span<const unsigned char> sig, Span<const unsigned char> pubkey, SigVersion sigversion, ScriptExecutionData& execdata, ScriptError* serror = nullptr) const override;
     bool CheckLockTime(const CScriptNum& nLockTime) const override;
     bool CheckSequence(const CScriptNum& nSequence) const override;
-    bool CheckDefaultCheckTemplateVerifyHash(const Span<const unsigned char>& hash) const override;
+    bool CheckDefaultCheckTemplateVerifyHash(const Span<const unsigned char>& hash, ScriptExecutionData& execdata) const override;
 };
 
 using TransactionSignatureChecker = GenericTransactionSignatureChecker<CTransaction>;

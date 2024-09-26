@@ -653,7 +653,7 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
                         case 32:
                         {
                             const Span<const unsigned char> hash{stack.back()};
-                            if (!checker.CheckDefaultCheckTemplateVerifyHash(hash)) {
+                            if (!checker.CheckDefaultCheckTemplateVerifyHash(hash, execdata)) {
                                 return set_error(serror, SCRIPT_ERR_TEMPLATE_MISMATCH);
                             }
                             break;
@@ -1532,7 +1532,8 @@ uint256 GetSpentScriptsSHA256(const std::vector<CTxOut>& outputs_spent)
 /* Not Exported, just convenience */
 template<typename TxType>
 uint256 GetDefaultCheckTemplateVerifyHashWithScript(const TxType& tx, const uint256& outputs_hash, const uint256& sequences_hash,
-                                const uint256& scriptSig_hash, const uint32_t input_index) {
+                                const uint256& scriptSig_hash, const uint32_t input_index,
+                                const bool annex_present, const uint256& annex_hash) {
     auto h = HashWriter{}
         << tx.nVersion
         << tx.nLockTime
@@ -1542,12 +1543,14 @@ uint256 GetDefaultCheckTemplateVerifyHashWithScript(const TxType& tx, const uint
         << uint32_t(tx.vout.size())
         << outputs_hash
         << input_index;
+    if (annex_present)
+        h << annex_hash;
     return h.GetSHA256();
 }
 
 template<typename TxType>
 uint256 GetDefaultCheckTemplateVerifyHashEmptyScript(const TxType& tx, const uint256& outputs_hash, const uint256& sequences_hash,
-                                const uint32_t input_index) {
+                                const uint32_t input_index, const bool annex_present, const uint256& annex_hash) {
     auto h = HashWriter{}
         << tx.nVersion
         << tx.nLockTime
@@ -1556,14 +1559,17 @@ uint256 GetDefaultCheckTemplateVerifyHashEmptyScript(const TxType& tx, const uin
         << uint32_t(tx.vout.size())
         << outputs_hash
         << input_index;
+    if (annex_present)
+        h << annex_hash;
     return h.GetSHA256();
 }
 
 } // namespace
 
 template<typename TxType>
-uint256 GetDefaultCheckTemplateVerifyHash(const TxType& tx, uint32_t input_index) {
-    return GetDefaultCheckTemplateVerifyHash(tx, GetOutputsSHA256(tx), GetSequencesSHA256(tx), input_index);
+uint256 GetDefaultCheckTemplateVerifyHash(const TxType& tx, uint32_t input_index, const bool annex_present, const uint256& annex_hash)
+{
+    return GetDefaultCheckTemplateVerifyHash(tx, GetOutputsSHA256(tx), GetSequencesSHA256(tx), input_index, annex_present, annex_hash);
 }
 
 template<typename TxType>
@@ -1574,17 +1580,17 @@ static bool NoScriptSigs(const TxType& tx)
 
 template<typename TxType>
 uint256 GetDefaultCheckTemplateVerifyHash(const TxType& tx, const uint256& outputs_hash, const uint256& sequences_hash,
-                                const uint32_t input_index) {
-    return NoScriptSigs(tx) ? GetDefaultCheckTemplateVerifyHashEmptyScript(tx, outputs_hash, sequences_hash, input_index) :
-        GetDefaultCheckTemplateVerifyHashWithScript(tx, outputs_hash, sequences_hash, GetScriptSigsSHA256(tx), input_index);
+                                const uint32_t input_index, const bool annex_present, const uint256& annex_hash) {
+    return NoScriptSigs(tx) ? GetDefaultCheckTemplateVerifyHashEmptyScript(tx, outputs_hash, sequences_hash, input_index, annex_present, annex_hash) :
+        GetDefaultCheckTemplateVerifyHashWithScript(tx, outputs_hash, sequences_hash, GetScriptSigsSHA256(tx), input_index, annex_present, annex_hash);
 }
 
 template
 uint256 GetDefaultCheckTemplateVerifyHash(const CTransaction& tx, const uint256& outputs_hash, const uint256& sequences_hash,
-                                const uint32_t input_index);
+                                const uint32_t input_index, const bool annex_present, const uint256& annex_hash);
 template
 uint256 GetDefaultCheckTemplateVerifyHash(const CMutableTransaction& tx, const uint256& outputs_hash, const uint256& sequences_hash,
-                                const uint32_t input_index);
+                                const uint32_t input_index, const bool annex_present, const uint256& annex_hash);
 
 template <class T>
 void PrecomputedTransactionData::Init(const T& txTo, std::vector<CTxOut>&& spent_outputs, bool force)
@@ -1981,16 +1987,17 @@ bool GenericTransactionSignatureChecker<T>::CheckSequence(const CScriptNum& nSeq
 }
 
 template <class T>
-bool GenericTransactionSignatureChecker<T>::CheckDefaultCheckTemplateVerifyHash(const Span<const unsigned char>& hash) const
+bool GenericTransactionSignatureChecker<T>::CheckDefaultCheckTemplateVerifyHash(const Span<const unsigned char>& hash, ScriptExecutionData& execdata) const
 {
     // Should already be checked before calling...
     assert(hash.size() == 32);
     if (txdata && txdata->m_bip119_ctv_ready) {
         assert(txTo != nullptr);
         uint256 hash_tmpl = txdata->m_scriptSigs_single_hash.IsNull() ?
-            GetDefaultCheckTemplateVerifyHashEmptyScript(*txTo, txdata->m_outputs_single_hash, txdata->m_sequences_single_hash, nIn) :
+            GetDefaultCheckTemplateVerifyHashEmptyScript(*txTo, txdata->m_outputs_single_hash, txdata->m_sequences_single_hash, nIn,
+                    execdata.m_annex_present, execdata.m_annex_hash) :
             GetDefaultCheckTemplateVerifyHashWithScript(*txTo, txdata->m_outputs_single_hash, txdata->m_sequences_single_hash,
-                    txdata->m_scriptSigs_single_hash, nIn);
+                    txdata->m_scriptSigs_single_hash, nIn, execdata.m_annex_present, execdata.m_annex_hash);
         return std::equal(hash_tmpl.begin(), hash_tmpl.end(), hash.data());
     } else {
         return HandleMissingData(m_mdb);
