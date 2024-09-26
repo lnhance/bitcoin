@@ -135,8 +135,8 @@ std::string GetOpName(opcodetype opcode)
     case OP_NOP1                   : return "OP_NOP1";
     case OP_CHECKLOCKTIMEVERIFY    : return "OP_CHECKLOCKTIMEVERIFY";
     case OP_CHECKSEQUENCEVERIFY    : return "OP_CHECKSEQUENCEVERIFY";
-    case OP_NOP4                   : return "OP_NOP4";
-    case OP_NOP5                   : return "OP_NOP5";
+    case OP_CHECKTEMPLATEVERIFY    : return "OP_CHECKTEMPLATEVERIFY";
+    case OP_CHECKSIGFROMSTACKVERIFY: return "OP_CHECKSIGFROMSTACKVERIFY";
     case OP_NOP6                   : return "OP_NOP6";
     case OP_NOP7                   : return "OP_NOP7";
     case OP_NOP8                   : return "OP_NOP8";
@@ -145,6 +145,10 @@ std::string GetOpName(opcodetype opcode)
 
     // Opcode added by BIP 342 (Tapscript)
     case OP_CHECKSIGADD            : return "OP_CHECKSIGADD";
+
+    // Tapscript expansion
+    case OP_INTERNALKEY            : return "OP_INTERNALKEY";
+    case OP_CHECKSIGFROMSTACK      : return "OP_CHECKSIGFROMSTACK";
 
     case OP_INVALIDOPCODE          : return "OP_INVALIDOPCODE";
 
@@ -163,7 +167,8 @@ unsigned int CScript::GetSigOpCount(bool fAccurate) const
         opcodetype opcode;
         if (!GetOp(pc, opcode))
             break;
-        if (opcode == OP_CHECKSIG || opcode == OP_CHECKSIGVERIFY)
+        if (opcode == OP_CHECKSIG || opcode == OP_CHECKSIGVERIFY ||
+            opcode == OP_CHECKSIGFROMSTACK || opcode == OP_CHECKSIGFROMSTACKVERIFY)
             n++;
         else if (opcode == OP_CHECKMULTISIG || opcode == OP_CHECKMULTISIGVERIFY)
         {
@@ -201,6 +206,13 @@ unsigned int CScript::GetSigOpCount(const CScript& scriptSig) const
     return subscript.GetSigOpCount(true);
 }
 
+bool CScript::IsPayToBareDefaultCheckTemplateVerifyHash() const
+{
+    // Extra-fast test for pay-to-bare-default-check-template-verify-hash CScripts:
+    return (this->size() == 34 &&
+            (*this)[0] == 0x20 &&
+            (*this)[33] == OP_CHECKTEMPLATEVERIFY);
+}
 bool CScript::IsPayToScriptHash() const
 {
     // Extra-fast test for pay-to-script-hash CScripts:
