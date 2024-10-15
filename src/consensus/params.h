@@ -48,6 +48,8 @@ struct BIP9Deployment {
     int64_t nStartTime{NEVER_ACTIVE};
     /** Timeout/expiry MedianTime for the deployment attempt. */
     int64_t nTimeout{NEVER_ACTIVE};
+    /** Lock in on Timeout/expiry */
+    bool bLockInOnTimeout{false};
     /** If lock in occurs, delay activation until at least this block
      *  height.  Note that activation will only occur on a retarget
      *  boundary.
