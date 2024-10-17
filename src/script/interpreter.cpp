@@ -1328,7 +1328,32 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
                     stack.push_back(fSuccess ? vchTrue : vchFalse);
                     break;
                 }
+                
+                case OP_PAIRCOMMIT: {
+                    // OP_PAIRCOMMIT is only available in Tapscript
+                    if (sigversion == SigVersion::BASE || sigversion == SigVersion::WITNESS_V0) return set_error(serror, SCRIPT_ERR_BAD_OPCODE);
+                    if (flags & SCRIPT_VERIFY_DISCOURAGE_LNHANCE) {
+                        return set_error(serror, SCRIPT_ERR_DISCOURAGE_OP_SUCCESS);
+                    }
 
+                    if (stack.size() < 2) {
+                        return set_error(serror, SCRIPT_ERR_INVALID_STACK_OPERATION);
+                    }
+                    const valtype& vch1 = stacktop(-2);
+                    const valtype& vch2 = stacktop(-1);
+                    const HashWriter HASHER_PAIRCOMMIT{TaggedHash("PairCommit")};
+                    HashWriter hash{HASHER_PAIRCOMMIT};
+                    hash
+                        << vch1
+                        << vch2
+                        << uint64_t(vch1.size() + 1)
+                        << uint64_t(vch2.size() + 1);
+                    popstack(stack);
+                    popstack(stack);
+                    stack.push_back(ToByteVector(hash.GetSHA256()));
+                    break;
+                }
+                
                 default:
                     return set_error(serror, SCRIPT_ERR_BAD_OPCODE);
             }
@@ -2003,7 +2028,8 @@ static bool ExecuteWitnessScript(const Span<const valtype>& stack_span, const CS
                 // Note how this condition would not be reached if an unknown OP_SUCCESSx was found
                 return set_error(serror, SCRIPT_ERR_BAD_OPCODE);
             }
-            if ((flags & SCRIPT_VERIFY_LNHANCE) && (opcode == OP_CHECKSIGFROMSTACK || opcode == OP_INTERNALKEY)) {
+            if ((flags & SCRIPT_VERIFY_LNHANCE) && (
+                    opcode == OP_CHECKSIGFROMSTACK || opcode == OP_INTERNALKEY || opcode == OP_PAIRCOMMIT)) {
                 continue;
             }
             // New opcodes will be listed here. May use a different sigversion to modify existing opcodes.
