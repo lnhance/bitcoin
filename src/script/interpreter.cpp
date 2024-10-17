@@ -1346,8 +1346,8 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
                     hash
                         << vch1
                         << vch2
-                        << uint64_t(vch1.size() + 1)
-                        << uint64_t(vch2.size() + 1);
+                        << htobe64(vch1.size() + 1)
+                        << htobe64(vch2.size() + 1);
                     popstack(stack);
                     popstack(stack);
                     stack.push_back(ToByteVector(hash.GetSHA256()));
