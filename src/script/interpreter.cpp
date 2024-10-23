@@ -1336,21 +1336,17 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
                         return set_error(serror, SCRIPT_ERR_DISCOURAGE_OP_SUCCESS);
                     }
 
+                    // x1 x2 -- hash
                     if (stack.size() < 2) {
                         return set_error(serror, SCRIPT_ERR_INVALID_STACK_OPERATION);
                     }
                     const valtype& vch1 = stacktop(-2);
                     const valtype& vch2 = stacktop(-1);
-                    const HashWriter HASHER_PAIRCOMMIT{TaggedHash("PairCommit")};
-                    HashWriter hash{HASHER_PAIRCOMMIT};
-                    hash
-                        << vch1
-                        << vch2
-                        << htobe64(vch1.size() + 1)
-                        << htobe64(vch2.size() + 1);
+                    uint256 hash;
+                    PairCommitHash(hash, vch1, vch2);
                     popstack(stack);
                     popstack(stack);
-                    stack.push_back(ToByteVector(hash.GetSHA256()));
+                    stack.push_back(ToByteVector(hash));
                     break;
                 }
                 
@@ -1675,6 +1671,22 @@ template PrecomputedTransactionData::PrecomputedTransactionData(const CMutableTr
 const HashWriter HASHER_TAPSIGHASH{TaggedHash("TapSighash")};
 const HashWriter HASHER_TAPLEAF{TaggedHash("TapLeaf")};
 const HashWriter HASHER_TAPBRANCH{TaggedHash("TapBranch")};
+const HashWriter HASHER_PAIRCOMMIT{TaggedHash("PairCommit")};
+
+void PairCommitHash(uint256& hash_out, const std::vector<unsigned char>& x1, const std::vector<unsigned char>& x2)
+{
+    const uint32_t pad = 1Ui32 << 31;
+
+    HashWriter ss{HASHER_PAIRCOMMIT};
+    ss << x1
+       << x2
+       << uint32_t(x1.size())
+       << pad
+       << uint32_t(x2.size())
+       << pad;
+
+    hash_out = ss.GetSHA256();
+}
 
 static bool HandleMissingData(MissingDataBehavior mdb)
 {
