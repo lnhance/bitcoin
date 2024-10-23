@@ -1342,8 +1342,9 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
                     }
                     const valtype& vch1 = stacktop(-2);
                     const valtype& vch2 = stacktop(-1);
-                    uint256 hash;
-                    PairCommitHash(hash, vch1, vch2);
+
+                    uint256 hash = PairCommitHash(vch1, vch2);
+
                     popstack(stack);
                     popstack(stack);
                     stack.push_back(ToByteVector(hash));
@@ -1673,7 +1674,7 @@ const HashWriter HASHER_TAPLEAF{TaggedHash("TapLeaf")};
 const HashWriter HASHER_TAPBRANCH{TaggedHash("TapBranch")};
 const HashWriter HASHER_PAIRCOMMIT{TaggedHash("PairCommit")};
 
-void PairCommitHash(uint256& hash_out, const std::vector<unsigned char>& x1, const std::vector<unsigned char>& x2)
+uint256 PairCommitHash(const std::vector<unsigned char>& x1, const std::vector<unsigned char>& x2)
 {
     // PAD is 0x00000001 in little endian serializaton
     const uint32_t PAD = 0x01000000;
@@ -1684,7 +1685,7 @@ void PairCommitHash(uint256& hash_out, const std::vector<unsigned char>& x1, con
        << uint32_t(x1.size()) << PAD
        << uint32_t(x2.size()) << PAD;
 
-    hash_out = ss.GetSHA256();
+    return ss.GetSHA256();
 }
 
 static bool HandleMissingData(MissingDataBehavior mdb)
