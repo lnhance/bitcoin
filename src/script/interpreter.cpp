@@ -1675,7 +1675,8 @@ const HashWriter HASHER_PAIRCOMMIT{TaggedHash("PairCommit")};
 
 void PairCommitHash(uint256& hash_out, const std::vector<unsigned char>& x1, const std::vector<unsigned char>& x2)
 {
-    const uint32_t PAD = 1u << 31;
+    // PAD is 0x00000001 in little endian serializaton
+    const uint32_t PAD = 0x01000000;
 
     HashWriter ss{HASHER_PAIRCOMMIT};
     ss << x1
