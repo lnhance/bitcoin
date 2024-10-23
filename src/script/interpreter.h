@@ -212,6 +212,9 @@ template<typename TxType>
 uint256 GetDefaultCheckTemplateVerifyHash(const TxType& tx, const uint256& outputs_hash, const uint256& sequences_hash,
                                 const uint32_t input_index);
 
+/* PairCommit Declaration */
+void PairCommitHash(uint256& hash_out, const std::vector<unsigned char>& x1, const std::vector<unsigned char>& x2);
+
 enum class SigVersion
 {
     BASE = 0,        //!< Bare scripts and BIP16 P2SH-wrapped redeemscripts
