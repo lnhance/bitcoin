@@ -1675,15 +1675,13 @@ const HashWriter HASHER_PAIRCOMMIT{TaggedHash("PairCommit")};
 
 void PairCommitHash(uint256& hash_out, const std::vector<unsigned char>& x1, const std::vector<unsigned char>& x2)
 {
-    const uint32_t pad = 1Ui32 << 31;
+    const uint32_t PAD = 1u << 31;
 
     HashWriter ss{HASHER_PAIRCOMMIT};
     ss << x1
        << x2
-       << uint32_t(x1.size())
-       << pad
-       << uint32_t(x2.size())
-       << pad;
+       << uint32_t(x1.size()) << PAD
+       << uint32_t(x2.size()) << PAD;
 
     hash_out = ss.GetSHA256();
 }
