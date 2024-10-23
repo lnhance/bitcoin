@@ -213,7 +213,7 @@ uint256 GetDefaultCheckTemplateVerifyHash(const TxType& tx, const uint256& outpu
                                 const uint32_t input_index);
 
 /* PairCommit Declaration */
-void PairCommitHash(uint256& hash_out, const std::vector<unsigned char>& x1, const std::vector<unsigned char>& x2);
+uint256 PairCommitHash(const std::vector<unsigned char>& x1, const std::vector<unsigned char>& x2);
 
 enum class SigVersion
 {
