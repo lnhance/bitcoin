@@ -1684,22 +1684,34 @@ const HashWriter HASHER_TAPLEAF{TaggedHash("TapLeaf")};
 const HashWriter HASHER_TAPBRANCH{TaggedHash("TapBranch")};
 const HashWriter HASHER_PAIRCOMMIT{TaggedHash("PairCommit")};
 
+namespace {
+/* uint32_t hash function using primes 0x3B9ACA07 multiplier and 0x7FFFFFFF modulo
+ * expected to change on average ~16 bits in output for a single bit change in input */
+__inline uint32_t uint32_t_hash_x3B9ACA07(const uint32_t& i)
+{
+    static const uint64_t p = 0x3B9ACA07;
+    static const uint32_t m = 0x7FFFFFFF;
+
+    return (p * i) % m;
+}
+}
+
+/* PairCommitHash preimage is expected to change over 32 bits on average in case of
+ * length redistribution between the two input vectors */
 uint256 PairCommitHash(const std::vector<unsigned char>& x1, const std::vector<unsigned char>& x2)
 {
-    const uint64_t p = 0x3B9ACA07;
-    const uint32_t m = 0x7FFFFFFF;
-    uint32_t x1_size = x1.size();
-    uint32_t x2_size = x2.size();
-    uint32_t x1_csum = (p * x1_size) % m;
-    uint32_t x2_csum = (p * x2_size) % m;
+    const uint32_t x1_size = x1.size();
+    const uint32_t x2_size = x2.size();
+    const uint32_t x1_sh = uint32_t_hash_x3B9ACA07(x1_size);
+    const uint32_t x2_sh = uint32_t_hash_x3B9ACA07(x2_size);
 
     HashWriter ss{HASHER_PAIRCOMMIT};
     ss << x1
        << x2
        << x1_size
-       << x1_csum
+       << x1_sh
        << x2_size
-       << x2_csum;
+       << x2_sh;
 
     return ss.GetSHA256();
 }
