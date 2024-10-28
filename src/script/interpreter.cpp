@@ -1680,9 +1680,13 @@ uint256 PairCommitHash(const std::vector<unsigned char>& x1, const std::vector<u
     const uint32_t PAD = 0x01000000;
 
     HashWriter ss{HASHER_PAIRCOMMIT};
-    ss << x1
-       << x2
-       << uint32_t(x1.size()) << PAD
+
+    for (const unsigned char& b : x1)
+        ss << b;
+    for (const unsigned char& b : x2)
+        ss << b;
+
+    ss << uint32_t(x1.size()) << PAD
        << uint32_t(x2.size()) << PAD;
 
     return ss.GetSHA256();
