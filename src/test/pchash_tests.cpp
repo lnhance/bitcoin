@@ -6,8 +6,13 @@
 #include <consensus/tx_check.h>
 #include <consensus/validation.h>
 #include <hash.h>
+#include <script/script.h>
+#include <script/solver.h>
 #include <script/interpreter.h>
+#include <script/signingprovider.h>
 #include <serialize.h>
+#include <addresstype.h>
+#include <validation.h>
 #include <streams.h>
 #include <test/util/setup_common.h>
 #include <util/strencodings.h>
@@ -93,6 +98,50 @@ BOOST_AUTO_TEST_CASE(pchash_reproduce)
     uint256 hash2 = ss.GetSHA256();
 
     BOOST_CHECK_EQUAL(hash1, hash2);
+}
+
+// Goal: check that OP_PAIRCOMMIT behaves as expected in script
+BOOST_AUTO_TEST_CASE(pchash_tapscript)
+{
+    // "Hello "
+    const valtype x1 = {0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20};
+    // "World!"
+    const valtype x2 = {0x57, 0x6f, 0x72, 0x6c, 0x64, 0x21};
+
+    // <x1> <x2> OP_PAIRCOMMIT <test1_expected_result> OP_EQUAL
+    CScript script;
+    script << ToByteVector(x1);
+    script << ToByteVector(x2);
+    script << OP_PAIRCOMMIT;
+    script << ToByteVector(uint256{test1_expected_result});
+    script << OP_EQUAL;
+
+    // Build a taproot address...
+    XOnlyPubKey key_inner{ParseHex("79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798")};
+    TaprootBuilder builder;
+    builder.Add(0, script, 0xc0);
+    builder.Finalize(key_inner);
+    WitnessV1Taproot output = builder.GetOutput();
+    TaprootSpendData spenddata = builder.GetSpendData();
+
+    CMutableTransaction txFrom;
+    txFrom.vout.resize(1);
+    txFrom.vout[0].scriptPubKey = GetScriptForDestination(output);
+    txFrom.vout[0].nValue = 10000;
+
+    CMutableTransaction txTo;
+    txTo.vin.resize(1);
+    txTo.vin[0].prevout.n = 0;
+    txTo.vin[0].prevout.hash = txFrom.GetHash();
+    //txTo.vin[0].scriptWitness = ???
+
+    PrecomputedTransactionData txdata(txTo);
+
+    unsigned int flags = SCRIPT_VERIFY_WITNESS | SCRIPT_VERIFY_TAPROOT | SCRIPT_VERIFY_LNHANCE;
+
+    bool ok = CScriptCheck(txFrom.vout[0], CTransaction(txTo), 0, flags, false, &txdata)();
+
+    //BOOST_CHECK(ok);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
