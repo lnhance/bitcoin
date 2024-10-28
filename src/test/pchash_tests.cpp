@@ -20,14 +20,7 @@
 
 namespace {
     typedef std::vector<unsigned char> valtype;
-
-    // SHA256("PairCommit")
-    static const unsigned char pc_tag_hash[32] = {
-        0x08, 0x20, 0x7e, 0x7c, 0x41, 0xc4, 0x78, 0x33,
-        0xaa, 0x39, 0x74, 0x77, 0xdf, 0x01, 0xc9, 0xde,
-        0xb0, 0x26, 0xa8, 0xfe, 0x8d, 0x9b, 0xe5, 0xa9,
-        0x8f, 0x4a, 0x36, 0x4f, 0x39, 0x19, 0x93, 0xc9
-    };
+    typedef Span<const unsigned char> Raw;
 
     static const unsigned char test1_expected_result[32] = {
         0x57, 0xaf, 0x85, 0x35, 0xe7, 0x7b, 0xee, 0x32,
@@ -50,14 +43,17 @@ BOOST_FIXTURE_TEST_SUITE(pchash_tests, BasicTestingSetup)
 BOOST_AUTO_TEST_CASE(pchash_from_data)
 {
     uint256 hash1 = PairCommitHash(
+        // "Hello "
         valtype{0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20},
+        // "World!"
         valtype{0x57, 0x6f, 0x72, 0x6c, 0x64, 0x21}
     );
     BOOST_CHECK_EQUAL(hash1, uint256(test1_expected_result));
 
-
     uint256 hash2 = PairCommitHash(
+        // "Hello"
         valtype{0x48, 0x65, 0x6c, 0x6c, 0x6f},
+        // " World!"
         valtype{0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64, 0x21}
     );
     BOOST_CHECK_EQUAL(hash2, uint256(test2_expected_result));
@@ -66,23 +62,37 @@ BOOST_AUTO_TEST_CASE(pchash_from_data)
 // Goal: check that PC Hash Function generate correct hash
 BOOST_AUTO_TEST_CASE(pchash_reproduce)
 {
+    // pc_tag_hash = SHA256("PairCommit")
+    uint256 pc_tag_hash;
+    std::string pc_tag = "PairCommit";
+    CSHA256().Write((const unsigned char*)pc_tag.data(), pc_tag.size()).Finalize(pc_tag_hash.begin());
+
+    // "Hello "
     const valtype x1 = {0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20};
+    // "World!"
     const valtype x2 = {0x57, 0x6f, 0x72, 0x6c, 0x64, 0x21};
+    // uint32_t(6) in little endian serilaization
+    const valtype x1_size = {0x06, 0x00, 0x00, 0x00};
+    // uint32_t(6) in little endian serilaization
+    const valtype x2_size = {0x06, 0x00, 0x00, 0x00};
+    // uint32_t(0x01000000u) in little endian serilaization
+    const valtype padding = {0x00, 0x00, 0x00, 0x01};
+
+    uint256 hash1 = PairCommitHash(x1, x2);
 
     HashWriter ss;
-    ss << uint256{pc_tag_hash}
-       << uint256{pc_tag_hash}
-       << Span<const unsigned char>{x1.data(), x1.size()}
-       << Span<const unsigned char>{x2.data(), x2.size()}
-       << uint32_t(x1.size())
-       << uint32_t(0x01000000)
-       << uint32_t(x2.size())
-       << uint32_t(0x01000000);
+    ss << Raw{pc_tag_hash}
+       << Raw{pc_tag_hash}
+       << Raw{x1}
+       << Raw{x2}
+       << Raw(x1_size)
+       << Raw(padding)
+       << Raw(x2_size)
+       << Raw(padding);
 
-    uint256 check1 = ss.GetSHA256();
-    uint256 check2 = PairCommitHash(x1, x2);
+    uint256 hash2 = ss.GetSHA256();
 
-    BOOST_CHECK_EQUAL(check1, check2);
+    BOOST_CHECK_EQUAL(hash1, hash2);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

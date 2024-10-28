@@ -1674,22 +1674,24 @@ const HashWriter HASHER_TAPLEAF{TaggedHash("TapLeaf")};
 const HashWriter HASHER_TAPBRANCH{TaggedHash("TapBranch")};
 const HashWriter HASHER_PAIRCOMMIT{TaggedHash("PairCommit")};
 
-uint256 PairCommitHash(const std::vector<unsigned char>& x1, const std::vector<unsigned char>& x2)
+uint256 PairCommitHash(Span<const unsigned char> x1, Span<const unsigned char> x2)
 {
-    // PAD is 0x00000001 in little endian serializaton
-    const uint32_t PAD = 0x01000000;
+    // PAD is 0x00, 0x00, 0x00, 0x01 in little endian serializaton
+    static const uint32_t PCPAD = 0x01000000u;
 
     HashWriter ss{HASHER_PAIRCOMMIT};
-
-    for (const unsigned char& b : x1)
-        ss << b;
-    for (const unsigned char& b : x2)
-        ss << b;
-
-    ss << uint32_t(x1.size()) << PAD
-       << uint32_t(x2.size()) << PAD;
+    ss << x1
+       << x2
+       << uint32_t(x1.size()) << PCPAD
+       << uint32_t(x2.size()) << PCPAD;
 
     return ss.GetSHA256();
+}
+
+uint256 PairCommitHashExt(const std::vector<unsigned char>& x1, const std::vector<unsigned char>& x2)
+{
+    // Implicitly converts std::vector<unsigned char> to Span<const unsigned char>
+    return PairCommitHash(x1, x2);
 }
 
 static bool HandleMissingData(MissingDataBehavior mdb)

@@ -212,8 +212,10 @@ template<typename TxType>
 uint256 GetDefaultCheckTemplateVerifyHash(const TxType& tx, const uint256& outputs_hash, const uint256& sequences_hash,
                                 const uint32_t input_index);
 
-/* PairCommit Declaration */
-uint256 PairCommitHash(const std::vector<unsigned char>& x1, const std::vector<unsigned char>& x2);
+/* PairCommit Declarations */
+uint256 PairCommitHash(Span<const unsigned char> x1, Span<const unsigned char> x2);
+
+uint256 PairCommitHashExt(const std::vector<unsigned char>& x1, const std::vector<unsigned char>& x2);
 
 enum class SigVersion
 {
