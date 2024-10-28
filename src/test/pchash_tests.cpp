@@ -70,8 +70,8 @@ BOOST_AUTO_TEST_CASE(pchash_reproduce)
     const valtype x2 = {0x57, 0x6f, 0x72, 0x6c, 0x64, 0x21};
 
     HashWriter ss;
-    ss << pc_tag_hash
-       << pc_tag_hash
+    ss << uint256{pc_tag_hash}
+       << uint256{pc_tag_hash}
        << Span<const unsigned char>{x1.data(), x1.size()}
        << Span<const unsigned char>{x2.data(), x2.size()}
        << uint32_t(x1.size())
