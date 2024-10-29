@@ -116,32 +116,39 @@ BOOST_AUTO_TEST_CASE(pchash_tapscript)
     script << ToByteVector(uint256{test1_expected_result});
     script << OP_EQUAL;
 
+    auto witVerifyScript = ToByteVector(script);
+
     // Build a taproot address...
     XOnlyPubKey key_inner{ParseHex("79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798")};
     TaprootBuilder builder;
-    builder.Add(0, script, 0xc0);
-    builder.Finalize(key_inner);
-    WitnessV1Taproot output = builder.GetOutput();
-    TaprootSpendData spenddata = builder.GetSpendData();
+    builder.Add(/*depth=*/0, witVerifyScript, TAPROOT_LEAF_TAPSCRIPT, /*track=*/true);
+    builder.Finalize(XOnlyPubKey(key_inner));
+
+    CScriptWitness witness;
+    //witness.stack.insert(witness.stack.begin(), witData.begin(), witData.end());
+    witness.stack.push_back(witVerifyScript);
+    auto controlblock = *(builder.GetSpendData().scripts[{witVerifyScript, TAPROOT_LEAF_TAPSCRIPT}].begin());
+    witness.stack.push_back(controlblock);
+
+    uint32_t flags = SCRIPT_VERIFY_P2SH | SCRIPT_VERIFY_WITNESS | SCRIPT_VERIFY_TAPROOT | SCRIPT_VERIFY_LNHANCE;
+    CScript scriptPubKey = CScript() << OP_1 << ToByteVector(builder.GetOutput());
 
     CMutableTransaction txFrom;
     txFrom.vout.resize(1);
-    txFrom.vout[0].scriptPubKey = GetScriptForDestination(output);
+    txFrom.vout[0].scriptPubKey = scriptPubKey;
     txFrom.vout[0].nValue = 10000;
 
     CMutableTransaction txTo;
     txTo.vin.resize(1);
     txTo.vin[0].prevout.n = 0;
     txTo.vin[0].prevout.hash = txFrom.GetHash();
-    //txTo.vin[0].scriptWitness = ???
+    txTo.vin[0].scriptWitness = witness;
 
     PrecomputedTransactionData txdata(txTo);
 
-    unsigned int flags = SCRIPT_VERIFY_WITNESS | SCRIPT_VERIFY_TAPROOT | SCRIPT_VERIFY_LNHANCE;
-
     bool ok = CScriptCheck(txFrom.vout[0], CTransaction(txTo), 0, flags, false, &txdata)();
 
-    //BOOST_CHECK(ok);
+    BOOST_CHECK(ok);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
