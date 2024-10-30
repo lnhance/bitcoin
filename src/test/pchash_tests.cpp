@@ -100,55 +100,75 @@ BOOST_AUTO_TEST_CASE(pchash_reproduce)
     BOOST_CHECK_EQUAL(hash1, hash2);
 }
 
+
+namespace {
+
+    bool TapscriptCheck(const valtype& witVerifyScript, const std::vector<valtype>& witData)
+    {
+        // Build a taproot address...
+        XOnlyPubKey key_inner{ParseHex("79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798")};
+        TaprootBuilder builder;
+        builder.Add(/*depth=*/0, witVerifyScript, TAPROOT_LEAF_TAPSCRIPT, /*track=*/true);
+        builder.Finalize(XOnlyPubKey(key_inner));
+
+        CScriptWitness witness;
+        witness.stack.insert(witness.stack.begin(), witData.begin(), witData.end());
+        witness.stack.push_back(witVerifyScript);
+        auto controlblock = *(builder.GetSpendData().scripts[{witVerifyScript, TAPROOT_LEAF_TAPSCRIPT}].begin());
+        witness.stack.push_back(controlblock);
+
+        uint32_t flags = SCRIPT_VERIFY_P2SH | SCRIPT_VERIFY_WITNESS | SCRIPT_VERIFY_TAPROOT | SCRIPT_VERIFY_LNHANCE;
+        CScript scriptPubKey = CScript() << OP_1 << ToByteVector(builder.GetOutput());
+
+        CMutableTransaction txFrom;
+        txFrom.vout.resize(1);
+        txFrom.vout[0].scriptPubKey = scriptPubKey;
+        txFrom.vout[0].nValue = 10000;
+
+        CMutableTransaction txTo;
+        txTo.vin.resize(1);
+        txTo.vin[0].prevout.n = 0;
+        txTo.vin[0].prevout.hash = txFrom.GetHash();
+        txTo.vin[0].scriptWitness = witness;
+
+        PrecomputedTransactionData txdata(txTo);
+
+        return CScriptCheck(txFrom.vout[0], CTransaction(txTo), 0, flags, false, &txdata)();
+    }
+}
+
 // Goal: check that OP_PAIRCOMMIT behaves as expected in script
 BOOST_AUTO_TEST_CASE(pchash_tapscript)
 {
+    CScript script;
+
     // "Hello "
     const valtype x1 = {0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20};
     // "World!"
     const valtype x2 = {0x57, 0x6f, 0x72, 0x6c, 0x64, 0x21};
 
     // <x1> <x2> OP_PAIRCOMMIT <test1_expected_result> OP_EQUAL
-    CScript script;
-    script << ToByteVector(x1);
-    script << ToByteVector(x2);
-    script << OP_PAIRCOMMIT;
-    script << ToByteVector(uint256{test1_expected_result});
-    script << OP_EQUAL;
+    script
+        << ToByteVector(x1)
+        << ToByteVector(x2)
+        << OP_PAIRCOMMIT
+        << OP_EQUAL;
 
-    auto witVerifyScript = ToByteVector(script);
+    const valtype witVerifyScript = ToByteVector(script);
 
-    // Build a taproot address...
-    XOnlyPubKey key_inner{ParseHex("79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798")};
-    TaprootBuilder builder;
-    builder.Add(/*depth=*/0, witVerifyScript, TAPROOT_LEAF_TAPSCRIPT, /*track=*/true);
-    builder.Finalize(XOnlyPubKey(key_inner));
+    // Positive test: script must VERIFY with <test1_expected_result>
+    const std::vector<valtype> witData1{ ToByteVector(uint256{test1_expected_result}) };
 
-    CScriptWitness witness;
-    //witness.stack.insert(witness.stack.begin(), witData.begin(), witData.end());
-    witness.stack.push_back(witVerifyScript);
-    auto controlblock = *(builder.GetSpendData().scripts[{witVerifyScript, TAPROOT_LEAF_TAPSCRIPT}].begin());
-    witness.stack.push_back(controlblock);
+    bool verify = TapscriptCheck(witVerifyScript, witData1);
 
-    uint32_t flags = SCRIPT_VERIFY_P2SH | SCRIPT_VERIFY_WITNESS | SCRIPT_VERIFY_TAPROOT | SCRIPT_VERIFY_LNHANCE;
-    CScript scriptPubKey = CScript() << OP_1 << ToByteVector(builder.GetOutput());
+    BOOST_CHECK(verify);
 
-    CMutableTransaction txFrom;
-    txFrom.vout.resize(1);
-    txFrom.vout[0].scriptPubKey = scriptPubKey;
-    txFrom.vout[0].nValue = 10000;
+    // Negative test: script must FAIL with <test2_expected_result>
+    const std::vector<valtype> witData2{ ToByteVector(uint256{test2_expected_result}) };
 
-    CMutableTransaction txTo;
-    txTo.vin.resize(1);
-    txTo.vin[0].prevout.n = 0;
-    txTo.vin[0].prevout.hash = txFrom.GetHash();
-    txTo.vin[0].scriptWitness = witness;
+    bool fail = !TapscriptCheck(witVerifyScript, witData2);
 
-    PrecomputedTransactionData txdata(txTo);
-
-    bool ok = CScriptCheck(txFrom.vout[0], CTransaction(txTo), 0, flags, false, &txdata)();
-
-    BOOST_CHECK(ok);
+    BOOST_CHECK(fail);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
