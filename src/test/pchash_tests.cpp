@@ -109,7 +109,7 @@ namespace {
         XOnlyPubKey key_inner{ParseHex("79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798")};
         TaprootBuilder builder;
         builder.Add(/*depth=*/0, witVerifyScript, TAPROOT_LEAF_TAPSCRIPT, /*track=*/true);
-        builder.Finalize(XOnlyPubKey(key_inner));
+        builder.Finalize(key_inner);
 
         CScriptWitness witness;
         witness.stack.insert(witness.stack.begin(), witData.begin(), witData.end());
