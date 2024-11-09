@@ -86,9 +86,9 @@ BOOST_AUTO_TEST_CASE(pchash_reproduce)
     HashWriter ss;
     ss << Raw{pc_tag_hash}
        << Raw{pc_tag_hash}
-       << Raw(x1_size)
+       << Raw{x1_size}
        << Raw{x1}
-       << Raw(x2_size)
+       << Raw{x2_size}
        << Raw{x2};
 
     uint256 hash2 = ss.GetSHA256();
@@ -119,9 +119,9 @@ BOOST_AUTO_TEST_CASE(pchash_reproduce_edge)
     HashWriter ss;
     ss << Raw{pc_tag_hash}
        << Raw{pc_tag_hash}
-       << Raw(x1_size)
+       << Raw{x1_size}
        << Raw{x1}
-       << Raw(x2_size)
+       << Raw{x2_size}
        << Raw{x2};
 
     uint256 hash2 = ss.GetSHA256();
@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE(pchash_tapscript)
     // "World!"
     const valtype x2 = {0x57, 0x6f, 0x72, 0x6c, 0x64, 0x21};
 
-    // <x1> <x2> OP_PAIRCOMMIT <test1_expected_result> OP_EQUAL
+    // <expected_result> | <x1> <x2> OP_PAIRCOMMIT OP_EQUAL
     script
         << ToByteVector(x1)
         << ToByteVector(x2)
