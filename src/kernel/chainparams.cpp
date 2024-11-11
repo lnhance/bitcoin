@@ -104,11 +104,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = 1628640000; // August 11th, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 709632; // Approximately November 12th, 2021
                                                                                               //
-        // Deployment of ctv/csfs/internalkey (BIPs are dead!)
+        // Deployment of CTV/CSFS/IK/PC (BIPs ???)
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].bit = 3;
-        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nStartTime = 1735603200;        // Dec 31th, 2024
-        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nTimeout = 1861833600;          // Dec 31th ,2028
-        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].min_activation_height = 888888; // Approximately March 22nd, 2025
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nStartTime = 1747915200;        // May 22, 2025
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nTimeout = 1830513600;          // Jan 03, 2028
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].min_activation_height = 923148; // Nov 9, 2025 (approximately)
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].bLockInOnTimeout = true;        // Grugg likes this!
 
         consensus.nMinimumChainWork = uint256S("0x000000000000000000000000000000000000000052b2559353df4117b7348b64");
