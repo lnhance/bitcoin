@@ -668,7 +668,7 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
                 }
                 break;
 
-                case OP_NOP1:
+                case OP_NOP1: case OP_NOP5:
                 case OP_NOP6: case OP_NOP7: case OP_NOP8: case OP_NOP9: case OP_NOP10:
                 {
                     if (flags & SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_NOPS)
@@ -1301,18 +1301,13 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
                     break;
                 }
 
-                case OP_CHECKSIGFROMSTACK:
-                case OP_CHECKSIGFROMSTACKVERIFY: {
-                    // if flags not enabled; treat OP_CHECKSIGFROMSTACKVERIFY as a NOP5
-                    if (opcode == OP_CHECKSIGFROMSTACKVERIFY && !(flags & SCRIPT_VERIFY_LNHANCE)) {
-                        break;
-                    }
+                case OP_CHECKSIGFROMSTACK: {
+                    // DISCOURAGE for OP_CHECKSIGFROMSTACK is handled in OP_SUCCESS handling
                     // OP_CHECKSIGFROMSTACK is only available in Tapscript
                     if (opcode == OP_CHECKSIGFROMSTACK && (sigversion == SigVersion::BASE || sigversion == SigVersion::WITNESS_V0)) {
                         return set_error(serror, SCRIPT_ERR_BAD_OPCODE);
                     }
                     if (flags & SCRIPT_VERIFY_DISCOURAGE_LNHANCE) {
-                        if (opcode == OP_CHECKSIGFROMSTACKVERIFY) return set_error(serror, SCRIPT_ERR_DISCOURAGE_UPGRADABLE_NOPS);
                         return set_error(serror, SCRIPT_ERR_DISCOURAGE_OP_SUCCESS);
                     }
 
@@ -1326,11 +1321,6 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
 
                     bool fSuccess = true;
                     if (!EvalChecksigFromStack(vchSigIn, vchMsg, vchPubKey, execdata, flags, sigversion, serror, fSuccess)) return false;
-
-                    if (opcode == OP_CHECKSIGFROMSTACKVERIFY) {
-                        if (!fSuccess) return set_error(serror, SCRIPT_ERR_CHECKSIGVERIFY);
-                        break;
-                    }
 
                     popstack(stack);
                     popstack(stack);
