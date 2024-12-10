@@ -104,7 +104,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = 1628640000; // August 11th, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 709632; // Approximately November 12th, 2021
                                                                                               //
-        // Deployment of CTV/CSFS/IK/PC (BIPs ???)
+        // Deployment of CTV/CSFS/IK/PC (BIPs 119, 348, 349, 442)
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].bit = 3;
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nStartTime = 1747915200;        // May 22, 2025
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nTimeout = 1830513600;          // Jan 03, 2028
