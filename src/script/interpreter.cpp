@@ -1328,7 +1328,7 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
                     stack.push_back(fSuccess ? vchTrue : vchFalse);
                     break;
                 }
-                
+
                 case OP_PAIRCOMMIT: {
                     // OP_PAIRCOMMIT is only available in Tapscript
                     if (sigversion == SigVersion::BASE || sigversion == SigVersion::WITNESS_V0) return set_error(serror, SCRIPT_ERR_BAD_OPCODE);
@@ -1350,7 +1350,7 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
                     stack.emplace_back(hash.begin(), hash.end());
                     break;
                 }
-                
+
                 default:
                     return set_error(serror, SCRIPT_ERR_BAD_OPCODE);
             }
@@ -1546,7 +1546,7 @@ template<typename TxType>
 uint256 GetDefaultCheckTemplateVerifyHashWithScript(const TxType& tx, const uint256& outputs_hash, const uint256& sequences_hash,
                                 const uint256& scriptSig_hash, const uint32_t input_index) {
     auto h = HashWriter{}
-        << tx.nVersion
+        << tx.version
         << tx.nLockTime
         << scriptSig_hash
         << uint32_t(tx.vin.size())
@@ -1561,7 +1561,7 @@ template<typename TxType>
 uint256 GetDefaultCheckTemplateVerifyHashEmptyScript(const TxType& tx, const uint256& outputs_hash, const uint256& sequences_hash,
                                 const uint32_t input_index) {
     auto h = HashWriter{}
-        << tx.nVersion
+        << tx.version
         << tx.nLockTime
         << uint32_t(tx.vin.size())
         << sequences_hash

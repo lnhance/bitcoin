@@ -27,6 +27,7 @@ import random
 import socket
 import time
 import unittest
+import struct
 
 from test_framework.crypto.siphash import siphash256
 from test_framework.util import assert_equal
@@ -613,7 +614,7 @@ class CTransaction:
 
     def get_standard_template_hash(self, nIn):
         r = b""
-        r += struct.pack("<i", self.nVersion)
+        r += struct.pack("<i", self.version)
         r += struct.pack("<I", self.nLockTime)
         if any(inp.scriptSig for inp in self.vin):
             r += sha256(b"".join(ser_string(inp.scriptSig) for inp in self.vin))

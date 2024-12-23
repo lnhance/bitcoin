@@ -56,7 +56,7 @@ def random_bytes(n):
 
 def template_hash_for_outputs(outputs, nIn=0, nVin=1, vin_override=None):
     c = CTransaction()
-    c.nVersion = 2
+    c.version = 2
     c.vin = vin_override
     if vin_override is None:
         c.vin = [CTxIn()] * nVin
@@ -399,7 +399,7 @@ class CheckTemplateVerifyTest(BitcoinTestFramework):
         self.log.info("Testing Taproot OP_CHECKTEMPLATEVERIFY spend")
         # Test sendrawtransaction
         taproot_check_template_verify_tx = CTransaction()
-        taproot_check_template_verify_tx.nVersion = 2
+        taproot_check_template_verify_tx.version = 2
         taproot_check_template_verify_tx.vin = [CTxIn(taproot_ctv_outpoint)]
         taproot_check_template_verify_tx.vout = outputs
         taproot_check_template_verify_tx.wit.vtxinwit += [CTxInWitness()]
@@ -428,7 +428,7 @@ class CheckTemplateVerifyTest(BitcoinTestFramework):
         self.log.info("Testing Segwit OP_CHECKTEMPLATEVERIFY spend")
         # Test sendrawtransaction
         check_template_verify_tx = CTransaction()
-        check_template_verify_tx.nVersion = 2
+        check_template_verify_tx.version = 2
         check_template_verify_tx.vin = [CTxIn(segwit_ctv_outpoint)]
         check_template_verify_tx.vout = outputs
 
@@ -475,7 +475,7 @@ class CheckTemplateVerifyTest(BitcoinTestFramework):
 
         # Second UTXO was actually spendable
         spendtx = CTransaction()
-        spendtx.nVersion = 2
+        spendtx.version = 2
         spendtx.vin = [CTxIn(anyone_can_spend_outpoint)]
         spendtx.vout += [CTxOut(int(amount_sats - 1000), random_p2sh())]
         spendtx.rehash()
@@ -488,7 +488,7 @@ class CheckTemplateVerifyTest(BitcoinTestFramework):
         )
         # Test sendrawtransaction
         check_template_verify_tx_wrongsize_stack = CTransaction()
-        check_template_verify_tx_wrongsize_stack.nVersion = 2
+        check_template_verify_tx_wrongsize_stack.version = 2
         check_template_verify_tx_wrongsize_stack.vin = [
             CTxIn(segwit_ctv_wrongsize_stack_outpoint)
         ]
@@ -520,7 +520,7 @@ class CheckTemplateVerifyTest(BitcoinTestFramework):
         )
         # Test sendrawtransaction
         check_template_verify_tx_empty_stack = CTransaction()
-        check_template_verify_tx_empty_stack.nVersion = 2
+        check_template_verify_tx_empty_stack.version = 2
         check_template_verify_tx_empty_stack.vin = [
             CTxIn(segwit_ctv_empty_stack_outpoint)
         ]
@@ -623,7 +623,7 @@ class CheckTemplateVerifyTest(BitcoinTestFramework):
         # recursive covenant), it'd just be a "party trick" (and you could
         # also possibly steal all existing P2SH addresses).
         p2sh_check_template_verify_tx = CTransaction()
-        p2sh_check_template_verify_tx.nVersion = 2
+        p2sh_check_template_verify_tx.version = 2
         p2sh_check_template_verify_tx.vin = [
             CTxIn(p2sh_ctv_outpoint, CScript([script]))
         ]
@@ -651,7 +651,7 @@ class CheckTemplateVerifyTest(BitcoinTestFramework):
         txs = []
         for level in congestion_tree_txo[1:]:
             spendtx = CTransaction()
-            spendtx.nVersion = 2
+            spendtx.version = 2
             spendtx.vin += [CTxIn(out)]
             spendtx.vout += level[:2]
             out = COutPoint(int(spendtx.rehash(), 16), 0)
@@ -660,7 +660,7 @@ class CheckTemplateVerifyTest(BitcoinTestFramework):
 
         self.log.info("Testing bare OP_CHECKTEMPLATEVERIFY with CTV at position 2")
         check_template_verify_tx_pos_2 = CTransaction()
-        check_template_verify_tx_pos_2.nVersion = 2
+        check_template_verify_tx_pos_2.version = 2
         check_template_verify_tx_pos_2.vin = [CTxIn(bare_ctv_position_2_outpoint)]
         check_template_verify_tx_pos_2.vout = outputs_position_2
         self.log.info(
@@ -691,7 +691,7 @@ class CheckTemplateVerifyTest(BitcoinTestFramework):
             "Testing bare OP_CHECKTEMPLATEVERIFY with CTV at position 1 with specific scriptSigs"
         )
         check_template_verify_tx_specific_scriptSigs = CTransaction()
-        check_template_verify_tx_specific_scriptSigs.nVersion = 2
+        check_template_verify_tx_specific_scriptSigs.version = 2
         check_template_verify_tx_specific_scriptSigs.vin = [
             CTxIn(bare_ctv_specific_scriptSigs_outpoint, CScript([OP_TRUE])),
             CTxIn(bare_anyone_can_spend_outpoint, CScript([OP_TRUE])),
@@ -716,7 +716,7 @@ class CheckTemplateVerifyTest(BitcoinTestFramework):
         )
         # This is only really to test that uncached values work correctly with scriptSig set
         check_template_verify_tx_specific_scriptSigs_position_2 = CTransaction()
-        check_template_verify_tx_specific_scriptSigs_position_2.nVersion = 2
+        check_template_verify_tx_specific_scriptSigs_position_2.version = 2
         check_template_verify_tx_specific_scriptSigs_position_2.vin = [
             CTxIn(bare_anyone_can_spend_outpoint, CScript([OP_TRUE])),
             CTxIn(
@@ -731,4 +731,4 @@ class CheckTemplateVerifyTest(BitcoinTestFramework):
 
 
 if __name__ == "__main__":
-    CheckTemplateVerifyTest().main()
+    CheckTemplateVerifyTest(__file__).main()

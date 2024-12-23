@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(ctvhash_from_data)
                 auto& hash_arr = test["result"].get_array();
                 for (size_t i = 0; i < hash_arr.size(); ++i) {
                     hash.emplace_back();
-                    hash.back().SetHex(hash_arr[i].get_str());
+                    hash.back().SetHexDeprecated(hash_arr[i].get_str());
                     // reverse because python's sha256().digest().hex() is
                     // backwards
                     std::reverse(hash.back().begin(), hash.back().end());
@@ -96,7 +96,8 @@ BOOST_AUTO_TEST_CASE(ctvhash_from_data)
                         if (tx.vin.size() > 0) {
                             // no need to rejection sample on 256 bits
                             const auto which = fr.randrange(tx.vin.size());
-                            tx.vin[which].prevout = {fr.rand256(), fr.rand32()};
+                            tx.vin[which].prevout.hash = Txid::FromUint256(fr.rand256());
+                            tx.vin[which].prevout.n = fr.rand32();
                         }
                         break;
                     }
@@ -122,10 +123,10 @@ BOOST_AUTO_TEST_CASE(ctvhash_from_data)
                         break;
                     }
                     case 4: {
-                        // Mutate nVersion
+                        // Mutate version
                         do {
-                            txc.nVersion = static_cast<int32_t>(fr.rand32());
-                        } while (txc.nVersion == tx.nVersion);
+                            txc.version = static_cast<int32_t>(fr.rand32());
+                        } while (txc.version == tx.version);
                         hash_will_change = true;
                         break;
                     }
