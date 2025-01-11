@@ -141,13 +141,13 @@ enum : uint32_t {
     // Making unknown public key versions (in BIP 342 scripts) non-standard
     SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_PUBKEYTYPE = (1U << 20),
 
-    // CHECKTEMPLATEVERIFY, CHECKSIGFROMSTACK(VERIFY), INTERNALKEY validation (BIP-119, xxx, yyy)
+    // CHECKTEMPLATEVERIFY, CHECKSIGFROMSTACK, INTERNALKEY validation (BIP-119, xxx, yyy)
     SCRIPT_VERIFY_LNHANCE = (1U << 21),
 
     // discourage upgradable OP_CHECKTEMPLATEVERIFY hashes
     SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_CHECKTEMPLATEVERIFY = (1U << 22),
 
-    // discourage OP_CHECKTEMPLATEVERIFY, OP_CHECKSIGFROMSTACK(VERIFY), OP_INTERNALKEY
+    // discourage OP_CHECKTEMPLATEVERIFY, OP_CHECKSIGFROMSTACK, OP_INTERNALKEY
     SCRIPT_VERIFY_DISCOURAGE_LNHANCE = (1U << 23),
 
     // Constants to point to the highest flag in use. Add new flags above this line.
