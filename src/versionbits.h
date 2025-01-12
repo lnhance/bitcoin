@@ -25,11 +25,12 @@ static const int32_t VERSIONBITS_NUM_BITS = 29;
  *  inherited between periods. All blocks of a period share the same state.
  */
 enum class ThresholdState {
-    DEFINED,   // First state that each softfork starts out as. The genesis block is by definition in this state for each deployment.
-    STARTED,   // For blocks past the starttime.
-    LOCKED_IN, // For at least one retarget period after the first retarget period with STARTED blocks of which at least threshold have the associated bit set in nVersion, until min_activation_height is reached.
-    ACTIVE,    // For all blocks after the LOCKED_IN retarget period (final state)
-    FAILED,    // For all blocks once the first retarget period after the timeout time is hit, if LOCKED_IN wasn't already reached (final state)
+    DEFINED,     // First state that each softfork starts out as. The genesis block is by definition in this state for each deployment.
+    STARTED,     // For blocks past the starttime.
+    MUST_SIGNAL, // If lockinontimeout is true, the period immediately before timeoutheight unless LOCKED_IN is reached first
+    LOCKED_IN,   // For at least one retarget period after the first retarget period with STARTED blocks of which at least threshold have the associated bit set in nVersion, until min_activation_height is reached.
+    ACTIVE,      // For all blocks after the LOCKED_IN retarget period (final state)
+    FAILED,      // For all blocks once the first retarget period after the timeout time is hit, if LOCKED_IN wasn't already reached (final state)
 };
 
 // A map that gives the state for blocks whose height is a multiple of Period().

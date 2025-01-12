@@ -78,11 +78,16 @@ ThresholdState AbstractThresholdConditionChecker::GetStateFor(const CBlockIndex*
                     stateNext = ThresholdState::LOCKED_IN;
                 } else if (pindexPrev->GetMedianTimePast() >= nTimeTimeout) {
                     if (bLockInOnTimeout) {
-                        stateNext = ThresholdState::LOCKED_IN;
+                        stateNext = ThresholdState::MUST_SIGNAL;
                     } else {
                         stateNext = ThresholdState::FAILED;
                     }
                 }
+                break;
+            }
+            case ThresholdState::MUST_SIGNAL: {
+                // Always progresses into LOCKED_IN.
+                stateNext = ThresholdState::LOCKED_IN;
                 break;
             }
             case ThresholdState::LOCKED_IN: {
