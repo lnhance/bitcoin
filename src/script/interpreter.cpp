@@ -635,12 +635,12 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
 
                 case OP_CHECKTEMPLATEVERIFY:
                 {
-                    if (flags & SCRIPT_VERIFY_DISCOURAGE_LNHANCE) {
+                    if (flags & SCRIPT_VERIFY_DISCOURAGE_CHECKTEMPLATEVERIFY) {
                         return set_error(serror, SCRIPT_ERR_DISCOURAGE_UPGRADABLE_NOPS);
                     }
 
                     // if flags not enabled; treat as a NOP4
-                    if (!(flags & SCRIPT_VERIFY_LNHANCE)) {
+                    if (!(flags & SCRIPT_VERIFY_CHECKTEMPLATEVERIFY)) {
                         break;
                     }
 
@@ -1293,7 +1293,7 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
                 case OP_INTERNALKEY: {
                     // OP_INTERNALKEY is only available in Tapscript
                     if (sigversion == SigVersion::BASE || sigversion == SigVersion::WITNESS_V0) return set_error(serror, SCRIPT_ERR_BAD_OPCODE);
-                    if (flags & SCRIPT_VERIFY_DISCOURAGE_LNHANCE) {
+                    if (flags & SCRIPT_VERIFY_DISCOURAGE_INTERNALKEY) {
                         return set_error(serror, SCRIPT_ERR_DISCOURAGE_OP_SUCCESS);
                     }
 
@@ -1307,7 +1307,7 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
                     if (opcode == OP_CHECKSIGFROMSTACK && (sigversion == SigVersion::BASE || sigversion == SigVersion::WITNESS_V0)) {
                         return set_error(serror, SCRIPT_ERR_BAD_OPCODE);
                     }
-                    if (flags & SCRIPT_VERIFY_DISCOURAGE_LNHANCE) {
+                    if (flags & SCRIPT_VERIFY_DISCOURAGE_CHECKSIGFROMSTACK) {
                         return set_error(serror, SCRIPT_ERR_DISCOURAGE_OP_SUCCESS);
                     }
 
@@ -1332,7 +1332,7 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
                 case OP_PAIRCOMMIT: {
                     // OP_PAIRCOMMIT is only available in Tapscript
                     if (sigversion == SigVersion::BASE || sigversion == SigVersion::WITNESS_V0) return set_error(serror, SCRIPT_ERR_BAD_OPCODE);
-                    if (flags & SCRIPT_VERIFY_DISCOURAGE_LNHANCE) {
+                    if (flags & SCRIPT_VERIFY_DISCOURAGE_PAIRCOMMIT) {
                         return set_error(serror, SCRIPT_ERR_DISCOURAGE_OP_SUCCESS);
                     }
 
@@ -2031,8 +2031,13 @@ static bool ExecuteWitnessScript(const Span<const valtype>& stack_span, const CS
                 // Note how this condition would not be reached if an unknown OP_SUCCESSx was found
                 return set_error(serror, SCRIPT_ERR_BAD_OPCODE);
             }
-            if ((flags & SCRIPT_VERIFY_LNHANCE) && (
-                    opcode == OP_CHECKSIGFROMSTACK || opcode == OP_INTERNALKEY || opcode == OP_PAIRCOMMIT)) {
+            if ((flags & SCRIPT_VERIFY_CHECKSIGFROMSTACK) && (opcode == OP_CHECKSIGFROMSTACK)) {
+                continue;
+            }
+            if ((flags & SCRIPT_VERIFY_INTERNALKEY) && (opcode == OP_CHECKSIGFROMSTACK)) {
+                continue;
+            }
+            if ((flags & SCRIPT_VERIFY_PAIRCOMMIT) && (opcode == OP_PAIRCOMMIT)) {
                 continue;
             }
             // New opcodes will be listed here. May use a different sigversion to modify existing opcodes.

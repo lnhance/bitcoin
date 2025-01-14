@@ -63,10 +63,18 @@ static std::map<std::string, unsigned int> mapFlagNames = {
     {std::string("TAPROOT"), (unsigned int)SCRIPT_VERIFY_TAPROOT},
     {std::string("DISCOURAGE_UPGRADABLE_PUBKEYTYPE"), (unsigned int)SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_PUBKEYTYPE},
     {std::string("DISCOURAGE_OP_SUCCESS"), (unsigned int)SCRIPT_VERIFY_DISCOURAGE_OP_SUCCESS},
-    {std::string("DISCOURAGE_UPGRADABLE_TAPROOT_VERSION"), (unsigned int)SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_TAPROOT_VERSION},
+    {std::string("DISCOURAGE_UPGRADABLE_TAPROOT_VERSION"), (unsigned int)SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_TAPROOT_VERSION},   
+    {std::string("CHECKTEMPLATEVERIFY"), (unsigned int)SCRIPT_VERIFY_CHECKTEMPLATEVERIFY},
     {std::string("DISCOURAGE_UPGRADABLE_CHECKTEMPLATEVERIFY"), (unsigned int)SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_CHECKTEMPLATEVERIFY},
-    {std::string("DISCOURAGE_LNHANCE"), (unsigned int)SCRIPT_VERIFY_DISCOURAGE_LNHANCE},
-    {std::string("LNHANCE"), (unsigned int)SCRIPT_VERIFY_LNHANCE},
+    {std::string("CHECKSIGFROMSTACK"), (unsigned int)SCRIPT_VERIFY_CHECKSIGFROMSTACK},
+    {std::string("INTERNALKEY"), (unsigned int)SCRIPT_VERIFY_INTERNALKEY},
+    {std::string("PAIRCOMMIT"), (unsigned int)SCRIPT_VERIFY_PAIRCOMMIT},
+    {std::string("CAT"), (unsigned int)SCRIPT_VERIFY_CAT},
+    {std::string("DISCOURAGE_CHECKTEMPLATEVERIFY"), (unsigned int)SCRIPT_VERIFY_DISCOURAGE_CHECKTEMPLATEVERIFY},
+    {std::string("DISCOURAGE_CHECKSIGFROMSTACK"), (unsigned int)SCRIPT_VERIFY_DISCOURAGE_CHECKSIGFROMSTACK},
+    {std::string("DISCOURAGE_INTERNALKEY"), (unsigned int)SCRIPT_VERIFY_DISCOURAGE_INTERNALKEY},
+    {std::string("DISCOURAGE_PAIRCOMMIT"), (unsigned int)SCRIPT_VERIFY_DISCOURAGE_PAIRCOMMIT},
+    {std::string("DISCOURAGE_CAT"), (unsigned int)SCRIPT_VERIFY_DISCOURAGE_CAT},
 };
 
 unsigned int ParseScriptFlags(std::string strFlags)
@@ -151,8 +159,15 @@ bool CheckTxScripts(const CTransaction& tx, const std::map<COutPoint, CScript>& 
 
 unsigned int TrimFlags(unsigned int flags)
 {
-    // !LNHANCE requires !DISCOURGE_OP_SUCCESS
-    if (!(flags & SCRIPT_VERIFY_LNHANCE)) flags &= ~(unsigned int)SCRIPT_VERIFY_DISCOURAGE_OP_SUCCESS;
+    const uint32_t OP_SUCCESS_DEPENDENT =
+        SCRIPT_VERIFY_CHECKSIGFROMSTACK |
+        SCRIPT_VERIFY_INTERNALKEY |
+        SCRIPT_VERIFY_PAIRCOMMIT |
+        SCRIPT_VERIFY_CAT |
+        SCRIPT_VERIFY_NONE;
+
+    // !CHECKSIGFROMSTACK/INTERNALKEY/PAIRCOMMIT/CAT requires !DISCOURGE_OP_SUCCESS
+    if (!(flags & OP_SUCCESS_DEPENDENT)) flags &= ~(unsigned int)SCRIPT_VERIFY_DISCOURAGE_OP_SUCCESS;
 
     // WITNESS requires P2SH
     if (!(flags & SCRIPT_VERIFY_P2SH)) flags &= ~(unsigned int)SCRIPT_VERIFY_WITNESS;

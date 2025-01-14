@@ -32,7 +32,8 @@ constexpr bool ValidDeployment(BuriedDeployment dep) { return dep <= DEPLOYMENT_
 enum DeploymentPos : uint16_t {
     DEPLOYMENT_TESTDUMMY,
     DEPLOYMENT_TAPROOT, // Deployment of Schnorr/Taproot (BIPs 340-342)
-    DEPLOYMENT_LNHANCE, // Deployment of CHECKTEMPLATEVERIFY, CHECKSIGFROMSTACK, OP_INTERNALKEY (BIPs 119, 348, 349)
+    DEPLOYMENT_LNHANCE, // Deployment of CTV, CSFS, INTERNALKEY, PAIRCOMMITT (BIPs 119, 348, 349, 442)
+    DEPLOYMENT_C3PO, // Deployment of CTV, CAT, CSFS (BIPs 119, 347, 348)
     // NOTE: Also add new deployments to VersionBitsDeploymentInfo in deploymentinfo.cpp
     MAX_VERSION_BITS_DEPLOYMENTS
 };

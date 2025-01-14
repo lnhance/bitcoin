@@ -104,8 +104,14 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = 1628640000; // August 11th, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 709632; // Approximately November 12th, 2021
                                                                                               //
-        // Deployment of ctv/csfs/internalkey (BIPs 119, yyy, zzz)
+        // Deployment of CTV/CSFS/INTERNALKEY/PAIRCOMMIT (BIPs 119, 348, 349, 442)
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].bit = 3;
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nStartTime = Consensus::BIP9Deployment::NEVER_ACTIVE;
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].min_activation_height = 0; // No activation delay
+
+         // Deployment of CTV/CAT/CSFS (BIPs 119, 347, 348)
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].bit = 4;
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nStartTime = Consensus::BIP9Deployment::NEVER_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].min_activation_height = 0; // No activation delay
@@ -228,8 +234,14 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = 1628640000; // August 11th, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 0; // No activation delay
 
-        // Deployment of ctv/csfs/internalkey (BIPs 119, yyy, zzz)
+        // Deployment of CTV/CSFS/INTERNALKEY/PAIRCOMMIT (BIPs 119, 348, 349, 442)
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].bit = 3;
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nStartTime = Consensus::BIP9Deployment::NEVER_ACTIVE;
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].min_activation_height = 0; // No activation delay
+
+        // Deployment of CTV/CAT/CSFS (BIPs 119, 347, 348)
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].bit = 4;
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nStartTime = Consensus::BIP9Deployment::NEVER_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].min_activation_height = 0; // No activation delay
@@ -371,8 +383,14 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 0; // No activation delay
 
-        // Deployment of ctv/csfs/internalkey (BIPs 119, yyy, zzz)
+        // Deployment of CTV/CSFS/INTERNALKEY/PAIRCOMMIT (BIPs 119, 348, 349, 442)
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].bit = 3;
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].min_activation_height = 0; // No activation delay
+
+        // Deployment of CTV/CAT/CSFS (BIPs 119, 347, 348)
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].bit = 4;
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].min_activation_height = 0; // No activation delay
@@ -453,11 +471,17 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 0; // No activation delay
 
-        // Deployment of ctv/csfs/internalkey (BIPs 119, yyy, zzz)
+        // Deployment of CTV/CSFS/INTERNALKEY/PAIRCOMMIT (BIPs 119, 348, 349, 442)
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].bit = 3;
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].min_activation_height = 0;
+
+        // Deployment of CTV/CAT/CSFS (BIPs 119, 347, 348)
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].bit = 4;
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].min_activation_height = 0; // No activation delay
 
         consensus.nMinimumChainWork = uint256{};
         consensus.defaultAssumeValid = uint256{};

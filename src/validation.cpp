@@ -1032,9 +1032,19 @@ bool MemPoolAccept::PolicyScriptChecks(const ATMPArgs& args, Workspace& ws)
     const CTransaction& tx = *ws.m_ptx;
     TxValidationState& state = ws.m_state;
 
-    const bool lnenhance_active = DeploymentActiveAfter(m_active_chainstate.m_chain.Tip(), m_active_chainstate.m_chainman, Consensus::DEPLOYMENT_LNHANCE);
+    const bool lnhance_active = DeploymentActiveAfter(m_active_chainstate.m_chain.Tip(), m_active_chainstate.m_chainman, Consensus::DEPLOYMENT_LNHANCE);
+    const bool c3po_active = DeploymentActiveAfter(m_active_chainstate.m_chain.Tip(), m_active_chainstate.m_chainman, Consensus::DEPLOYMENT_C3PO);
+    const bool bip119_active = lnhance_active || c3po_active;
+    const bool bip347_active = c3po_active;
+    const bool bip348_active = lnhance_active || c3po_active;
+    const bool bip349_active = lnhance_active;
+    const bool bip442_active = lnhance_active;
     const unsigned int scriptVerifyFlags = STANDARD_SCRIPT_VERIFY_FLAGS |
-        (lnenhance_active ? SCRIPT_VERIFY_NONE : SCRIPT_VERIFY_DISCOURAGE_LNHANCE);
+        (bip119_active ? SCRIPT_VERIFY_NONE : SCRIPT_VERIFY_DISCOURAGE_CHECKTEMPLATEVERIFY) |
+        (bip347_active ? SCRIPT_VERIFY_NONE : SCRIPT_VERIFY_DISCOURAGE_CAT) |
+        (bip348_active ? SCRIPT_VERIFY_NONE : SCRIPT_VERIFY_DISCOURAGE_CHECKSIGFROMSTACK) |
+        (bip349_active ? SCRIPT_VERIFY_NONE : SCRIPT_VERIFY_DISCOURAGE_INTERNALKEY) |
+        (bip442_active ? SCRIPT_VERIFY_NONE : SCRIPT_VERIFY_DISCOURAGE_PAIRCOMMIT);
 
     // Check input scripts and signatures.
     // This is done last to help prevent CPU exhaustion denial-of-service attacks.
@@ -2126,9 +2136,16 @@ static unsigned int GetBlockScriptFlags(const CBlockIndex& block_index, const Ch
         flags |= SCRIPT_VERIFY_CHECKSEQUENCEVERIFY;
     }
 
-    // Enforce ctv/csfs/internalkey (BIP 119, xxx, yyy)
+    // Enforce CTV/CSFS/INTERNALKEY/PAIRCOMMIT (BIP 119, 348, 349, 442)
     if (DeploymentActiveAt(block_index, chainman, Consensus::DEPLOYMENT_LNHANCE)) {
-        flags |= SCRIPT_VERIFY_LNHANCE;
+        flags |= SCRIPT_VERIFY_CHECKTEMPLATEVERIFY | SCRIPT_VERIFY_CHECKSIGFROMSTACK
+            | SCRIPT_VERIFY_INTERNALKEY | SCRIPT_VERIFY_PAIRCOMMIT;
+    }
+
+    // Enforce CTV/CAT/CSFS (BIP 119, 347, 348)
+    if (DeploymentActiveAt(block_index, chainman, Consensus::DEPLOYMENT_C3PO)) {
+        flags |= SCRIPT_VERIFY_CHECKTEMPLATEVERIFY | SCRIPT_VERIFY_CAT
+            | SCRIPT_VERIFY_CHECKSIGFROMSTACK;
     }
 
     // Enforce BIP147 NULLDUMMY (activated simultaneously with segwit)

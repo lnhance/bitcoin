@@ -141,15 +141,39 @@ enum : uint32_t {
     // Making unknown public key versions (in BIP 342 scripts) non-standard
     SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_PUBKEYTYPE = (1U << 20),
 
-    // CHECKTEMPLATEVERIFY, CHECKSIGFROMSTACK, INTERNALKEY validation (BIP-119, xxx, yyy)
-    SCRIPT_VERIFY_LNHANCE = (1U << 21),
+    // OP_CHECKTEMPLATEVERIFY, validation (BIP-119)
+    SCRIPT_VERIFY_CHECKTEMPLATEVERIFY = (1U << 21),
 
-    // discourage upgradable OP_CHECKTEMPLATEVERIFY hashes
+    // discourage upgradable OP_CHECKTEMPLATEVERIFY (BIP-119) hashes
     SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_CHECKTEMPLATEVERIFY = (1U << 22),
 
-    // discourage OP_CHECKTEMPLATEVERIFY, OP_CHECKSIGFROMSTACK, OP_INTERNALKEY
-    SCRIPT_VERIFY_DISCOURAGE_LNHANCE = (1U << 23),
+    // OP_CHECKSIGFROMSTACK, validation (BIP-348)
+    SCRIPT_VERIFY_CHECKSIGFROMSTACK = (1U << 23),
 
+    // OP_INTERNALKEY, validation (BIP-349)
+    SCRIPT_VERIFY_INTERNALKEY = (1U << 24),
+
+    // OP_PAIRCOMMIT, validation (BIP-442)
+    SCRIPT_VERIFY_PAIRCOMMIT = (1U << 25),
+
+    // reserved for OP_CAT, validation (BIP-347)
+    SCRIPT_VERIFY_CAT = (1U << 26),
+
+    // discourage OP_CHECKTEMPLATEVERIFY (BIP-119)
+    SCRIPT_VERIFY_DISCOURAGE_CHECKTEMPLATEVERIFY = (1U << 27),
+
+    // discourage OP_CHECKSIGFROMSTACK (BIP-348)
+    SCRIPT_VERIFY_DISCOURAGE_CHECKSIGFROMSTACK = (1U << 28),
+
+    // discourage OP_INTERNALKEY (BIP-349)
+    SCRIPT_VERIFY_DISCOURAGE_INTERNALKEY = (1U << 29),
+    
+    // discourage OP_PAIRCOMMIT (BIP-442)
+    SCRIPT_VERIFY_DISCOURAGE_PAIRCOMMIT = (1U << 30),
+    
+    // reserved for discourage OP_CAT (BIP-347)
+    SCRIPT_VERIFY_DISCOURAGE_CAT = (1U << 31),
+    
     // Constants to point to the highest flag in use. Add new flags above this line.
     //
     SCRIPT_VERIFY_END_MARKER

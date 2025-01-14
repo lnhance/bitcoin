@@ -146,7 +146,7 @@ namespace {
         auto controlblock = *(builder.GetSpendData().scripts[{witVerifyScript, TAPROOT_LEAF_TAPSCRIPT}].begin());
         witness.stack.push_back(controlblock);
 
-        uint32_t flags = SCRIPT_VERIFY_P2SH | SCRIPT_VERIFY_WITNESS | SCRIPT_VERIFY_TAPROOT | SCRIPT_VERIFY_LNHANCE;
+        uint32_t flags = SCRIPT_VERIFY_P2SH | SCRIPT_VERIFY_WITNESS | SCRIPT_VERIFY_TAPROOT | SCRIPT_VERIFY_PAIRCOMMIT;
         CScript scriptPubKey = CScript() << OP_1 << ToByteVector(builder.GetOutput());
 
         CMutableTransaction txFrom;
