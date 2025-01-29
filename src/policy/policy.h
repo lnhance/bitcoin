@@ -120,6 +120,7 @@ static constexpr unsigned int STANDARD_SCRIPT_VERIFY_FLAGS{MANDATORY_SCRIPT_VERI
                                                              SCRIPT_VERIFY_INTERNALKEY |
                                                              SCRIPT_VERIFY_PAIRCOMMIT |
                                                              SCRIPT_VERIFY_CAT |
+                                                             SCRIPT_VERIFY_CHECKCONTRACTVERIFY |
                                                              SCRIPT_VERIFY_NONE};
 
 /** For convenience, standard but not mandatory verify flags. */

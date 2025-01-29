@@ -1034,17 +1034,20 @@ bool MemPoolAccept::PolicyScriptChecks(const ATMPArgs& args, Workspace& ws)
 
     const bool lnhance_active = DeploymentActiveAfter(m_active_chainstate.m_chain.Tip(), m_active_chainstate.m_chainman, Consensus::DEPLOYMENT_LNHANCE);
     const bool c3po_active = DeploymentActiveAfter(m_active_chainstate.m_chain.Tip(), m_active_chainstate.m_chainman, Consensus::DEPLOYMENT_C3PO);
-    const bool bip119_active = lnhance_active || c3po_active;
-    const bool bip347_active = c3po_active;
-    const bool bip348_active = lnhance_active || c3po_active;
+    const bool c4_active = DeploymentActiveAfter(m_active_chainstate.m_chain.Tip(), m_active_chainstate.m_chainman, Consensus::DEPLOYMENT_C4);
+    const bool bip119_active = lnhance_active || c3po_active || c4_active;
+    const bool bip347_active = c3po_active || c4_active;
+    const bool bip348_active = lnhance_active || c3po_active || c4_active;
     const bool bip349_active = lnhance_active;
     const bool bip442_active = lnhance_active;
+    const bool bipCCV_active = c4_active;
     const unsigned int scriptVerifyFlags = STANDARD_SCRIPT_VERIFY_FLAGS |
         (bip119_active ? SCRIPT_VERIFY_NONE : SCRIPT_VERIFY_DISCOURAGE_CHECKTEMPLATEVERIFY) |
         (bip347_active ? SCRIPT_VERIFY_NONE : SCRIPT_VERIFY_DISCOURAGE_CAT) |
         (bip348_active ? SCRIPT_VERIFY_NONE : SCRIPT_VERIFY_DISCOURAGE_CHECKSIGFROMSTACK) |
         (bip349_active ? SCRIPT_VERIFY_NONE : SCRIPT_VERIFY_DISCOURAGE_INTERNALKEY) |
-        (bip442_active ? SCRIPT_VERIFY_NONE : SCRIPT_VERIFY_DISCOURAGE_PAIRCOMMIT);
+        (bip442_active ? SCRIPT_VERIFY_NONE : SCRIPT_VERIFY_DISCOURAGE_PAIRCOMMIT) |
+        (bipCCV_active ? SCRIPT_VERIFY_NONE : SCRIPT_VERIFY_DISCOURAGE_CHECKCONTRACTVERIFY);
 
     // Check input scripts and signatures.
     // This is done last to help prevent CPU exhaustion denial-of-service attacks.
@@ -2146,6 +2149,12 @@ static unsigned int GetBlockScriptFlags(const CBlockIndex& block_index, const Ch
     if (DeploymentActiveAt(block_index, chainman, Consensus::DEPLOYMENT_C3PO)) {
         flags |= SCRIPT_VERIFY_CHECKTEMPLATEVERIFY | SCRIPT_VERIFY_CAT
             | SCRIPT_VERIFY_CHECKSIGFROMSTACK;
+    }
+
+        // Enforce CTV/CAT/CSFS/CCV (BIP 119, 347, 348, ???)
+    if (DeploymentActiveAt(block_index, chainman, Consensus::DEPLOYMENT_C4)) {
+        flags |= SCRIPT_VERIFY_CHECKTEMPLATEVERIFY | SCRIPT_VERIFY_CAT
+            | SCRIPT_VERIFY_CHECKSIGFROMSTACK | SCRIPT_VERIFY_CHECKCONTRACTVERIFY;
     }
 
     // Enforce BIP147 NULLDUMMY (activated simultaneously with segwit)
