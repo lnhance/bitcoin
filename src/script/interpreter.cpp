@@ -493,10 +493,23 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
                 if (opcode > OP_16 && ++nOpCount > MAX_OPS_PER_SCRIPT) {
                     return set_error(serror, SCRIPT_ERR_OP_COUNT);
                 }
+
+                // When OP_SUCCESS disabled opcodes (CVE-2010-5137) are
+                // redefined in tapscript, remove them from the if below
+                // and put them here
+                if (opcode == OP_CAT) {
+                    return set_error(serror, SCRIPT_ERR_DISABLED_OPCODE); // Disabled opcodes (CVE-2010-5137).
+                }
+
+                // Following redefined OP_SUCCESS opcodes are only available in tapscript
+                if (opcode == OP_CHECKSIGFROMSTACK ||
+                    opcode == OP_INTERNALKEY ||
+                    opcode == OP_PAIRCOMMIT) {
+                    return set_error(serror, SCRIPT_ERR_BAD_OPCODE);
+                }
             }
 
-            if (opcode == OP_CAT ||
-                opcode == OP_SUBSTR ||
+            if (opcode == OP_SUBSTR ||
                 opcode == OP_LEFT ||
                 opcode == OP_RIGHT ||
                 opcode == OP_INVERT ||
@@ -559,6 +572,25 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
                 //
                 case OP_NOP:
                     break;
+
+                // OP_CAT is only available in tapscript
+                // DISCOURAGE for OP_CAT is handled in OP_SUCCESS handling
+                case OP_CAT:
+                {
+                    // (x1 x2 -- out)
+                    if (stack.size() < 2)
+                        return set_error(serror, SCRIPT_ERR_INVALID_STACK_OPERATION);
+
+                    valtype& vch1 = stacktop(-2);
+                    valtype& vch2 = stacktop(-1);
+
+                    if (vch1.size() + vch2.size() > MAX_SCRIPT_ELEMENT_SIZE)
+                        return set_error(serror, SCRIPT_ERR_PUSH_SIZE);
+
+                    vch1.insert(vch1.end(), vch2.begin(), vch2.end());
+                    stack.pop_back();
+                }
+                break;
 
                 case OP_CHECKLOCKTIMEVERIFY:
                 {
@@ -1290,28 +1322,19 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
                 }
                 break;
 
-                case OP_INTERNALKEY: {
-                    // OP_INTERNALKEY is only available in Tapscript
-                    if (sigversion == SigVersion::BASE || sigversion == SigVersion::WITNESS_V0) return set_error(serror, SCRIPT_ERR_BAD_OPCODE);
-                    if (flags & SCRIPT_VERIFY_DISCOURAGE_INTERNALKEY) {
-                        return set_error(serror, SCRIPT_ERR_DISCOURAGE_OP_SUCCESS);
-                    }
-
+                // OP_INTERNALKEY is only available in tapscript
+                // DISCOURAGE for OP_INTERNALKEY is handled in OP_SUCCESS handling
+                case OP_INTERNALKEY:
+                {
                     stack.emplace_back(execdata.m_internal_key.begin(), execdata.m_internal_key.end());
-                    break;
                 }
+                break;
 
-                case OP_CHECKSIGFROMSTACK: {
-                    // DISCOURAGE for OP_CHECKSIGFROMSTACK is handled in OP_SUCCESS handling
-                    // OP_CHECKSIGFROMSTACK is only available in Tapscript
-                    if (opcode == OP_CHECKSIGFROMSTACK && (sigversion == SigVersion::BASE || sigversion == SigVersion::WITNESS_V0)) {
-                        return set_error(serror, SCRIPT_ERR_BAD_OPCODE);
-                    }
-                    if (flags & SCRIPT_VERIFY_DISCOURAGE_CHECKSIGFROMSTACK) {
-                        return set_error(serror, SCRIPT_ERR_DISCOURAGE_OP_SUCCESS);
-                    }
-
-                    // sig message pubkey
+                // OP_CHECKSIGFROMSTACK is only available in tapscript
+                // DISCOURAGE for OP_CHECKSIGFROMSTACK is handled in OP_SUCCESS handling
+                case OP_CHECKSIGFROMSTACK:
+                {                    
+                    // (sig message pubkey)
                     if (stack.size() < 3)
                         return set_error(serror, SCRIPT_ERR_INVALID_STACK_OPERATION);
 
@@ -1326,17 +1349,14 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
                     popstack(stack);
                     popstack(stack);
                     stack.push_back(fSuccess ? vchTrue : vchFalse);
-                    break;
                 }
-                
-                case OP_PAIRCOMMIT: {
-                    // OP_PAIRCOMMIT is only available in Tapscript
-                    if (sigversion == SigVersion::BASE || sigversion == SigVersion::WITNESS_V0) return set_error(serror, SCRIPT_ERR_BAD_OPCODE);
-                    if (flags & SCRIPT_VERIFY_DISCOURAGE_PAIRCOMMIT) {
-                        return set_error(serror, SCRIPT_ERR_DISCOURAGE_OP_SUCCESS);
-                    }
+                break;
 
-                    // x1 x2 -- hash
+                // OP_PAIRCOMMIT is only available in tapscript
+                // DISCOURAGE for OP_PAIRCOMMIT is handled in OP_SUCCESS handling
+                case OP_PAIRCOMMIT:
+                {
+                    // (x1 x2 -- hash)
                     if (stack.size() < 2) {
                         return set_error(serror, SCRIPT_ERR_INVALID_STACK_OPERATION);
                     }
@@ -1348,8 +1368,8 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
                     stack.pop_back();
                     stack.pop_back();
                     stack.emplace_back(hash.begin(), hash.end());
-                    break;
                 }
+                break;
                 
                 default:
                     return set_error(serror, SCRIPT_ERR_BAD_OPCODE);
@@ -2031,17 +2051,34 @@ static bool ExecuteWitnessScript(const Span<const valtype>& stack_span, const CS
                 // Note how this condition would not be reached if an unknown OP_SUCCESSx was found
                 return set_error(serror, SCRIPT_ERR_BAD_OPCODE);
             }
-            if ((flags & SCRIPT_VERIFY_CHECKSIGFROMSTACK) && (opcode == OP_CHECKSIGFROMSTACK)) {
-                continue;
-            }
-            if ((flags & SCRIPT_VERIFY_INTERNALKEY) && (opcode == OP_CHECKSIGFROMSTACK)) {
-                continue;
-            }
-            if ((flags & SCRIPT_VERIFY_PAIRCOMMIT) && (opcode == OP_PAIRCOMMIT)) {
-                continue;
-            }
             // New opcodes will be listed here. May use a different sigversion to modify existing opcodes.
-            if (IsOpSuccess(opcode)) {
+            switch (opcode) {
+                case OP_CAT: {
+                    if (flags & SCRIPT_VERIFY_CAT) continue;
+                    if (flags & SCRIPT_VERIFY_DISCOURAGE_CAT)
+                        return set_error(serror, SCRIPT_ERR_DISCOURAGE_OP_CAT);
+                    break;
+                }
+                case OP_CHECKSIGFROMSTACK: {
+                    if (flags & SCRIPT_VERIFY_CHECKSIGFROMSTACK) continue;
+                    if (flags & SCRIPT_VERIFY_DISCOURAGE_CHECKSIGFROMSTACK)
+                        return set_error(serror, SCRIPT_ERR_DISCOURAGE_OP_SUCCESS);
+                    break;
+                }
+                case OP_INTERNALKEY: {
+                    if (flags & SCRIPT_VERIFY_INTERNALKEY) continue;
+                    if (flags & SCRIPT_VERIFY_DISCOURAGE_INTERNALKEY)
+                        return set_error(serror, SCRIPT_ERR_DISCOURAGE_OP_SUCCESS);
+                    break;
+                }
+                case OP_PAIRCOMMIT: {
+                    if (flags & SCRIPT_VERIFY_PAIRCOMMIT) continue;
+                    if (flags & SCRIPT_VERIFY_DISCOURAGE_PAIRCOMMIT)
+                        return set_error(serror, SCRIPT_ERR_DISCOURAGE_OP_SUCCESS);
+                    break;
+                }
+            }
+            if (IsOpSuccess(opcode)) {                
                 if (flags & SCRIPT_VERIFY_DISCOURAGE_OP_SUCCESS) {
                     return set_error(serror, SCRIPT_ERR_DISCOURAGE_OP_SUCCESS);
                 }
