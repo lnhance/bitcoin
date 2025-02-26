@@ -37,6 +37,8 @@ private:
 public:
     int64_t BeginTime(const Consensus::Params& params) const override { return TestTime(10000); }
     int64_t EndTime(const Consensus::Params& params) const override { return TestTime(20000); }
+    bool LockInOnTimeout(const Consensus::Params& params) const override { return 0; };
+    int MinActivationHeight(const Consensus::Params& params) const override { return 0; }
     int Period(const Consensus::Params& params) const override { return 1000; }
     int Threshold(const Consensus::Params& params) const override { return 900; }
     bool Condition(const CBlockIndex* pindex, const Consensus::Params& params) const override { return (pindex->nVersion & 0x100); }

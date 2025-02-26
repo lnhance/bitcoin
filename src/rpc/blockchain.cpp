@@ -1228,6 +1228,7 @@ static void SoftForkDescPushBack(const CBlockIndex* blockindex, UniValue& softfo
         switch (state) {
         case ThresholdState::DEFINED: return "defined";
         case ThresholdState::STARTED: return "started";
+        case ThresholdState::MUST_SIGNAL: return "must_signal";
         case ThresholdState::LOCKED_IN: return "locked_in";
         case ThresholdState::ACTIVE: return "active";
         case ThresholdState::FAILED: return "failed";
@@ -1240,7 +1241,7 @@ static void SoftForkDescPushBack(const CBlockIndex* blockindex, UniValue& softfo
     const ThresholdState next_state = chainman.m_versionbitscache.State(blockindex, chainman.GetConsensus(), id);
     const ThresholdState current_state = chainman.m_versionbitscache.State(blockindex->pprev, chainman.GetConsensus(), id);
 
-    const bool has_signal = (ThresholdState::STARTED == current_state || ThresholdState::LOCKED_IN == current_state);
+    const bool has_signal = (ThresholdState::STARTED == current_state || ThresholdState::MUST_SIGNAL == current_state || ThresholdState::LOCKED_IN == current_state);
 
     // BIP9 parameters
     if (has_signal) {
@@ -1249,6 +1250,7 @@ static void SoftForkDescPushBack(const CBlockIndex* blockindex, UniValue& softfo
     bip9.pushKV("start_time", chainman.GetConsensus().vDeployments[id].nStartTime);
     bip9.pushKV("timeout", chainman.GetConsensus().vDeployments[id].nTimeout);
     bip9.pushKV("min_activation_height", chainman.GetConsensus().vDeployments[id].min_activation_height);
+    bip9.pushKV("lockinontimeout", chainman.GetConsensus().vDeployments[id].bLockInOnTimeout);
 
     // BIP9 status
     bip9.pushKV("status", get_state_name(current_state));
@@ -1266,6 +1268,9 @@ static void SoftForkDescPushBack(const CBlockIndex* blockindex, UniValue& softfo
         if (ThresholdState::LOCKED_IN != current_state) {
             statsUV.pushKV("threshold", statsStruct.threshold);
             statsUV.pushKV("possible", statsStruct.possible);
+            if (ThresholdState::MUST_SIGNAL == current_state) {
+                statsUV.pushKV("must_signal", 1);
+            }
         }
         bip9.pushKV("statistics", std::move(statsUV));
 
@@ -1385,8 +1390,9 @@ const std::vector<RPCResult> RPCHelpForDeployment{
         {RPCResult::Type::NUM_TIME, "start_time", "the minimum median time past of a block at which the bit gains its meaning"},
         {RPCResult::Type::NUM_TIME, "timeout", "the median time past of a block at which the deployment is considered failed if not yet locked in"},
         {RPCResult::Type::NUM, "min_activation_height", "minimum height of blocks for which the rules may be enforced"},
-        {RPCResult::Type::STR, "status", "status of deployment at specified block (one of \"defined\", \"started\", \"locked_in\", \"active\", \"failed\")"},
+        {RPCResult::Type::STR, "status", "status of deployment at specified block (one of \"defined\", \"started\", \"must_signal\", \"locked_in\", \"active\", \"failed\")"},
         {RPCResult::Type::NUM, "since", "height of the first block to which the status applies"},
+        {RPCResult::Type::BOOL, "lockinontimeout", "true if the period before timeoutheight transitions to must_signal"},
         {RPCResult::Type::STR, "status_next", "status of deployment at the next block"},
         {RPCResult::Type::OBJ, "statistics", /*optional=*/true, "numeric statistics about signalling for a softfork (only for \"started\" and \"locked_in\" status)",
         {
