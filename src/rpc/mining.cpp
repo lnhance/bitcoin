@@ -886,6 +886,7 @@ static RPCHelpMan getblocktemplate()
     }
 
     UniValue vbavailable(UniValue::VOBJ);
+    int32_t vbrequired{0};
     for (int j = 0; j < (int)Consensus::MAX_VERSION_BITS_DEPLOYMENTS; ++j) {
         Consensus::DeploymentPos pos = Consensus::DeploymentPos(j);
         ThresholdState state = chainman.m_versionbitscache.State(pindexPrev, consensusParams, pos);
@@ -894,6 +895,11 @@ static RPCHelpMan getblocktemplate()
             case ThresholdState::FAILED:
                 // Not exposed to GBT at all
                 break;
+            case ThresholdState::MUST_SIGNAL:
+                // Bit must be set in block version
+                vbrequired |= chainman.m_versionbitscache.Mask(consensusParams, pos);
+                // FALL THROUGH to set nVersion and get vbavailable set...
+                [[fallthrough]];
             case ThresholdState::LOCKED_IN:
                 // Ensure bit is set in block version
                 pblock->nVersion |= chainman.m_versionbitscache.Mask(consensusParams, pos);
@@ -928,7 +934,7 @@ static RPCHelpMan getblocktemplate()
     result.pushKV("version", pblock->nVersion);
     result.pushKV("rules", aRules);
     result.pushKV("vbavailable", vbavailable);
-    result.pushKV("vbrequired", int(0));
+    result.pushKV("vbrequired", vbrequired);
 
     result.pushKV("previousblockhash", pblock->hashPrevBlock.GetHex());
     result.pushKV("transactions", transactions);
