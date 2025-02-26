@@ -103,6 +103,12 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nStartTime = 1619222400; // April 24th, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = 1628640000; // August 11th, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 709632; // Approximately November 12th, 2021
+                                                                                              //
+        // Deployment of CTV/CSFS/IK/PC (BIPs 119, 348, 349, 442)
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].bit = 3;
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nStartTime = Consensus::BIP9Deployment::NEVER_ACTIVE;
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].min_activation_height = 0; // No activation delay
 
         consensus.nMinimumChainWork = uint256S("0x000000000000000000000000000000000000000063c4ebd298db40af57541800");
         consensus.defaultAssumeValid = uint256S("0x000000000000000000026811d149d4d261995ec5b3f64f439a0a10e1a464af9a"); // 824000
@@ -221,6 +227,12 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nStartTime = 1619222400; // April 24th, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = 1628640000; // August 11th, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 0; // No activation delay
+
+        // Deployment of CTV/CSFS/IK/PC (BIPs 119, 348, 349, 442)
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].bit = 3;
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nStartTime = Consensus::BIP9Deployment::NEVER_ACTIVE;
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].min_activation_height = 0; // No activation delay
 
         consensus.nMinimumChainWork = uint256S("0x000000000000000000000000000000000000000000000c59b14e264ba6c15db9");
         consensus.defaultAssumeValid = uint256S("0x000000000001323071f38f21ea5aae529ece491eadaccce506a59bcc2d968917"); // 2550000
@@ -359,6 +371,12 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 0; // No activation delay
 
+        // Deployment of CTV/CSFS/IK/PC (BIPs 119, 348, 349, 442)
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].bit = 3;
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].min_activation_height = 0; // No activation delay
+
         // message start is defined as the first 4 bytes of the sha256d of the block script
         HashWriter h{};
         h << consensus.signet_challenge;
@@ -434,6 +452,12 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 0; // No activation delay
+
+        // Deployment of CTV/CSFS/IK/PC (BIPs 119, 348, 349, 442)
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].bit = 3;
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].min_activation_height = 0;
 
         consensus.nMinimumChainWork = uint256{};
         consensus.defaultAssumeValid = uint256{};
