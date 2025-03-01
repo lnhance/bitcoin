@@ -21,8 +21,16 @@ const struct VBDeploymentInfo VersionBitsDeploymentInfo[Consensus::MAX_VERSION_B
         /*.name =*/ "lnhance",
         /*.gbt_force =*/ true,
     },
-        {
+    {
+        /*.name =*/ "cc",
+        /*.gbt_force =*/ true,
+    },
+    {
         /*.name =*/ "c3po",
+        /*.gbt_force =*/ true,
+    },
+    {
+        /*.name =*/ "c4",
         /*.gbt_force =*/ true,
     },
 };

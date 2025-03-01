@@ -1033,11 +1033,12 @@ bool MemPoolAccept::PolicyScriptChecks(const ATMPArgs& args, Workspace& ws)
     TxValidationState& state = ws.m_state;
 
     const bool lnhance_active = DeploymentActiveAfter(m_active_chainstate.m_chain.Tip(), m_active_chainstate.m_chainman, Consensus::DEPLOYMENT_LNHANCE);
+    const bool cc_active = DeploymentActiveAfter(m_active_chainstate.m_chain.Tip(), m_active_chainstate.m_chainman, Consensus::DEPLOYMENT_CC);
     const bool c3po_active = DeploymentActiveAfter(m_active_chainstate.m_chain.Tip(), m_active_chainstate.m_chainman, Consensus::DEPLOYMENT_C3PO);
     const bool c4_active = DeploymentActiveAfter(m_active_chainstate.m_chain.Tip(), m_active_chainstate.m_chainman, Consensus::DEPLOYMENT_C4);
-    const bool bip119_active = lnhance_active || c3po_active || c4_active;
+    const bool bip119_active = lnhance_active || cc_active || c3po_active || c4_active;
     const bool bip347_active = c3po_active || c4_active;
-    const bool bip348_active = lnhance_active || c3po_active || c4_active;
+    const bool bip348_active = lnhance_active || cc_active || c3po_active || c4_active;
     const bool bip349_active = lnhance_active;
     const bool bip442_active = lnhance_active;
     const bool bipCCV_active = c4_active;
@@ -2143,6 +2144,11 @@ static unsigned int GetBlockScriptFlags(const CBlockIndex& block_index, const Ch
     if (DeploymentActiveAt(block_index, chainman, Consensus::DEPLOYMENT_LNHANCE)) {
         flags |= SCRIPT_VERIFY_CHECKTEMPLATEVERIFY | SCRIPT_VERIFY_CHECKSIGFROMSTACK
             | SCRIPT_VERIFY_INTERNALKEY | SCRIPT_VERIFY_PAIRCOMMIT;
+    }
+
+    // Enforce CTV/CAT/CSFS (BIP 119, 348)
+    if (DeploymentActiveAt(block_index, chainman, Consensus::DEPLOYMENT_CC)) {
+        flags |= SCRIPT_VERIFY_CHECKTEMPLATEVERIFY | SCRIPT_VERIFY_CHECKSIGFROMSTACK;
     }
 
     // Enforce CTV/CAT/CSFS (BIP 119, 347, 348)

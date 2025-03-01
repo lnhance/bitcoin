@@ -110,14 +110,20 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].min_activation_height = 0; // No activation delay
 
+        // Deployment of CTV/CSFS (BIPs 119, 348)
+        consensus.vDeployments[Consensus::DEPLOYMENT_CC].bit = 4;
+        consensus.vDeployments[Consensus::DEPLOYMENT_CC].nStartTime = Consensus::BIP9Deployment::NEVER_ACTIVE;
+        consensus.vDeployments[Consensus::DEPLOYMENT_CC].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
+        consensus.vDeployments[Consensus::DEPLOYMENT_CC].min_activation_height = 0; // No activation delay
+
          // Deployment of CTV/CAT/CSFS (BIPs 119, 347, 348)
-        consensus.vDeployments[Consensus::DEPLOYMENT_C3PO].bit = 4;
+        consensus.vDeployments[Consensus::DEPLOYMENT_C3PO].bit = 5;
         consensus.vDeployments[Consensus::DEPLOYMENT_C3PO].nStartTime = Consensus::BIP9Deployment::NEVER_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_C3PO].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_C3PO].min_activation_height = 0; // No activation delay
 
         // Deployment of CTV/CAT/CSFS (BIPs 119, 347, 348, ???)
-        consensus.vDeployments[Consensus::DEPLOYMENT_C4].bit = 5;
+        consensus.vDeployments[Consensus::DEPLOYMENT_C4].bit = 6;
         consensus.vDeployments[Consensus::DEPLOYMENT_C4].nStartTime = Consensus::BIP9Deployment::NEVER_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_C4].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_C4].min_activation_height = 0; // No activation delay
@@ -246,14 +252,20 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].min_activation_height = 0; // No activation delay
 
-        // Deployment of CTV/CAT/CSFS (BIPs 119, 347, 348)
-        consensus.vDeployments[Consensus::DEPLOYMENT_C3PO].bit = 4;
+        // Deployment of CTV/CSFS (BIPs 119, 348)
+        consensus.vDeployments[Consensus::DEPLOYMENT_CC].bit = 4;
+        consensus.vDeployments[Consensus::DEPLOYMENT_CC].nStartTime = Consensus::BIP9Deployment::NEVER_ACTIVE;
+        consensus.vDeployments[Consensus::DEPLOYMENT_CC].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
+        consensus.vDeployments[Consensus::DEPLOYMENT_CC].min_activation_height = 0; // No activation delay
+
+         // Deployment of CTV/CAT/CSFS (BIPs 119, 347, 348)
+        consensus.vDeployments[Consensus::DEPLOYMENT_C3PO].bit = 5;
         consensus.vDeployments[Consensus::DEPLOYMENT_C3PO].nStartTime = Consensus::BIP9Deployment::NEVER_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_C3PO].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_C3PO].min_activation_height = 0; // No activation delay
 
         // Deployment of CTV/CAT/CSFS (BIPs 119, 347, 348, ???)
-        consensus.vDeployments[Consensus::DEPLOYMENT_C4].bit = 5;
+        consensus.vDeployments[Consensus::DEPLOYMENT_C4].bit = 6;
         consensus.vDeployments[Consensus::DEPLOYMENT_C4].nStartTime = Consensus::BIP9Deployment::NEVER_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_C4].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_C4].min_activation_height = 0; // No activation delay
@@ -401,14 +413,20 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].min_activation_height = 0; // No activation delay
 
-        // Deployment of CTV/CAT/CSFS (BIPs 119, 347, 348)
-        consensus.vDeployments[Consensus::DEPLOYMENT_C3PO].bit = 4;
+        // Deployment of CTV/CSFS (BIPs 119, 348)
+        consensus.vDeployments[Consensus::DEPLOYMENT_CC].bit = 4;
+        consensus.vDeployments[Consensus::DEPLOYMENT_CC].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
+        consensus.vDeployments[Consensus::DEPLOYMENT_CC].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
+        consensus.vDeployments[Consensus::DEPLOYMENT_CC].min_activation_height = 0; // No activation delay
+
+         // Deployment of CTV/CAT/CSFS (BIPs 119, 347, 348)
+        consensus.vDeployments[Consensus::DEPLOYMENT_C3PO].bit = 5;
         consensus.vDeployments[Consensus::DEPLOYMENT_C3PO].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_C3PO].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_C3PO].min_activation_height = 0; // No activation delay
 
         // Deployment of CTV/CAT/CSFS (BIPs 119, 347, 348, ???)
-        consensus.vDeployments[Consensus::DEPLOYMENT_C4].bit = 5;
+        consensus.vDeployments[Consensus::DEPLOYMENT_C4].bit = 6;
         consensus.vDeployments[Consensus::DEPLOYMENT_C4].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_C4].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_C4].min_activation_height = 0; // No activation delay
@@ -495,14 +513,20 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].min_activation_height = 0;
 
-        // Deployment of CTV/CAT/CSFS (BIPs 119, 347, 348)
-        consensus.vDeployments[Consensus::DEPLOYMENT_C3PO].bit = 4;
+        // Deployment of CTV/CSFS (BIPs 119, 348)
+        consensus.vDeployments[Consensus::DEPLOYMENT_CC].bit = 4;
+        consensus.vDeployments[Consensus::DEPLOYMENT_CC].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
+        consensus.vDeployments[Consensus::DEPLOYMENT_CC].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
+        consensus.vDeployments[Consensus::DEPLOYMENT_CC].min_activation_height = 0; // No activation delay
+
+         // Deployment of CTV/CAT/CSFS (BIPs 119, 347, 348)
+        consensus.vDeployments[Consensus::DEPLOYMENT_C3PO].bit = 5;
         consensus.vDeployments[Consensus::DEPLOYMENT_C3PO].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_C3PO].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_C3PO].min_activation_height = 0; // No activation delay
 
         // Deployment of CTV/CAT/CSFS (BIPs 119, 347, 348, ???)
-        consensus.vDeployments[Consensus::DEPLOYMENT_C4].bit = 5;
+        consensus.vDeployments[Consensus::DEPLOYMENT_C4].bit = 6;
         consensus.vDeployments[Consensus::DEPLOYMENT_C4].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_C4].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_C4].min_activation_height = 0; // No activation delay
