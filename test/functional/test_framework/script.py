@@ -241,7 +241,7 @@ OP_CHECKMULTISIGVERIFY = CScriptOp(0xaf)
 OP_NOP1 = CScriptOp(0xb0)
 OP_CHECKLOCKTIMEVERIFY = CScriptOp(0xb1)
 OP_CHECKSEQUENCEVERIFY = CScriptOp(0xb2)
-OP_NOP4 = CScriptOp(0xb3)
+OP_CHECKTEMPLATEVERIFY = CScriptOp(0xb3)
 OP_NOP5 = CScriptOp(0xb4)
 OP_NOP6 = CScriptOp(0xb5)
 OP_NOP7 = CScriptOp(0xb6)
@@ -251,6 +251,9 @@ OP_NOP10 = CScriptOp(0xb9)
 
 # BIP 342 opcodes (Tapscript)
 OP_CHECKSIGADD = CScriptOp(0xba)
+OP_INTERNALKEY = CScriptOp(0xcb)
+OP_CHECKSIGFROMSTACK = CScriptOp(0xcc)
+OP_PAIRCOMMIT = CScriptOp(0xcd)
 
 OP_INVALIDOPCODE = CScriptOp(0xff)
 
@@ -359,7 +362,7 @@ OPCODE_NAMES.update({
     OP_NOP1: 'OP_NOP1',
     OP_CHECKLOCKTIMEVERIFY: 'OP_CHECKLOCKTIMEVERIFY',
     OP_CHECKSEQUENCEVERIFY: 'OP_CHECKSEQUENCEVERIFY',
-    OP_NOP4: 'OP_NOP4',
+    OP_CHECKTEMPLATEVERIFY : 'OP_CHECKTEMPLATEVERIFY',
     OP_NOP5: 'OP_NOP5',
     OP_NOP6: 'OP_NOP6',
     OP_NOP7: 'OP_NOP7',
@@ -367,6 +370,9 @@ OPCODE_NAMES.update({
     OP_NOP9: 'OP_NOP9',
     OP_NOP10: 'OP_NOP10',
     OP_CHECKSIGADD: 'OP_CHECKSIGADD',
+    OP_INTERNALKEY: 'OP_INTERNALKEY',
+    OP_CHECKSIGFROMSTACK: 'OP_CHECKSIGFROMSTACK',
+    OP_PAIRCOMMIT: 'OP_PAIRCOMMIT',
     OP_INVALIDOPCODE: 'OP_INVALIDOPCODE',
 })
 
@@ -924,4 +930,4 @@ def taproot_construct(pubkey, scripts=None, treat_internal_as_infinity=False):
     return TaprootInfo(CScript([OP_1, tweaked]), pubkey, negated + 0, tweak, leaves, h, tweaked)
 
 def is_op_success(o):
-    return o == 0x50 or o == 0x62 or o == 0x89 or o == 0x8a or o == 0x8d or o == 0x8e or (o >= 0x7e and o <= 0x81) or (o >= 0x83 and o <= 0x86) or (o >= 0x95 and o <= 0x99) or (o >= 0xbb and o <= 0xfe)
+    return o == 0x50 or o == 0x62 or o == 0x89 or o == 0x8a or o == 0x8d or o == 0x8e or (o >= 0x7e and o <= 0x81) or (o >= 0x83 and o <= 0x86) or (o >= 0x95 and o <= 0x99) or (o >= 0xbb and o <= 0xca) or (o >= 0xce and o <= 0xfe)
