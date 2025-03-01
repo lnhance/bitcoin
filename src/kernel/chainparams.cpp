@@ -91,7 +91,7 @@ public:
         consensus.nPowTargetSpacing = 10 * 60;
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.fPowNoRetargeting = false;
-        consensus.nRuleChangeActivationThreshold = 1815; // 90% of 2016
+        consensus.nRuleChangeActivationThreshold = 1714; // 85% of 2016
         consensus.nMinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = Consensus::BIP9Deployment::NEVER_ACTIVE;
@@ -106,9 +106,10 @@ public:
                                                                                               //
         // Deployment of CTV/CSFS/IK/PC (BIPs 119, 348, 349, 442)
         consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].bit = 3;
-        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nStartTime = Consensus::BIP9Deployment::NEVER_ACTIVE;
-        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
-        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].min_activation_height = 0; // No activation delay
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nStartTime = 1747915200;        // May 22, 2025
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].nTimeout = 1830513600;          // Jan 03, 2028
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].min_activation_height = 923328; // Nov 9, 2025 (approximately)
+        consensus.vDeployments[Consensus::DEPLOYMENT_LNHANCE].bLockInOnTimeout = true;        // LOT = true
 
         consensus.nMinimumChainWork = uint256S("0x000000000000000000000000000000000000000052b2559353df4117b7348b64");
         consensus.defaultAssumeValid = uint256S("0x00000000000000000001a0a448d6cf2546b06801389cc030b2b18c6491266815"); // 804000
