@@ -32,10 +32,11 @@ public:
     const int m_period;
     const int m_threshold;
     const int m_min_activation_height;
+    const bool m_lock_in_on_timeout;
     const int m_bit;
 
-    TestConditionChecker(int64_t begin, int64_t end, int period, int threshold, int min_activation_height, int bit)
-        : m_begin{begin}, m_end{end}, m_period{period}, m_threshold{threshold}, m_min_activation_height{min_activation_height}, m_bit{bit}
+    TestConditionChecker(int64_t begin, int64_t end, int period, int threshold, int min_activation_height, bool lock_in_on_timeout, int bit)
+        : m_begin{begin}, m_end{end}, m_period{period}, m_threshold{threshold}, m_min_activation_height{min_activation_height}, m_lock_in_on_timeout{false}, m_bit{bit}
     {
         assert(m_period > 0);
         assert(0 <= m_threshold && m_threshold <= m_period);
@@ -49,6 +50,7 @@ public:
     int Period(const Consensus::Params& params) const override { return m_period; }
     int Threshold(const Consensus::Params& params) const override { return m_threshold; }
     int MinActivationHeight(const Consensus::Params& params) const override { return m_min_activation_height; }
+    bool LockInOnTimeout(const Consensus::Params& params) const override { return m_lock_in_on_timeout; }
 
     ThresholdState GetStateFor(const CBlockIndex* pindexPrev) const { return AbstractThresholdConditionChecker::GetStateFor(pindexPrev, dummy_params, m_cache); }
     int GetStateSinceHeightFor(const CBlockIndex* pindexPrev) const { return AbstractThresholdConditionChecker::GetStateSinceHeightFor(pindexPrev, dummy_params, m_cache); }
@@ -168,8 +170,9 @@ FUZZ_TARGET(versionbits, .init = initialize)
         timeout = fuzzed_data_provider.ConsumeBool() ? Consensus::BIP9Deployment::NO_TIMEOUT : fuzzed_data_provider.ConsumeIntegral<int64_t>();
     }
     int min_activation = fuzzed_data_provider.ConsumeIntegralInRange<int>(0, period * max_periods);
+    bool lock_in_on_timeout = fuzzed_data_provider.ConsumeBool();
 
-    TestConditionChecker checker(start_time, timeout, period, threshold, min_activation, bit);
+    TestConditionChecker checker(start_time, timeout, period, threshold, min_activation, lock_in_on_timeout, bit);
 
     // Early exit if the versions don't signal sensibly for the deployment
     if (!checker.Condition(ver_signal)) return;
@@ -317,11 +320,17 @@ FUZZ_TARGET(versionbits, .init = initialize)
             assert(exp_state == ThresholdState::DEFINED);
         }
         break;
+    case ThresholdState::MUST_SIGNAL:
+        assert(checker.m_lock_in_on_timeout);
+        assert(current_block->GetMedianTimePast() >= checker.m_end);
+        assert(blocks_sig < threshold);
+        assert(exp_state == ThresholdState::STARTED);
+        break;
     case ThresholdState::LOCKED_IN:
         if (exp_state == ThresholdState::LOCKED_IN) {
             assert(current_block->nHeight + 1 < min_activation);
         } else {
-            assert(exp_state == ThresholdState::STARTED);
+            assert(exp_state == ThresholdState::STARTED || exp_state == ThresholdState::MUST_SIGNAL);
             assert(blocks_sig >= threshold);
         }
         break;
