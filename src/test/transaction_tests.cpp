@@ -65,6 +65,9 @@ static std::map<std::string, unsigned int> mapFlagNames = {
     {std::string("DISCOURAGE_UPGRADABLE_PUBKEYTYPE"), (unsigned int)SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_PUBKEYTYPE},
     {std::string("DISCOURAGE_OP_SUCCESS"), (unsigned int)SCRIPT_VERIFY_DISCOURAGE_OP_SUCCESS},
     {std::string("DISCOURAGE_UPGRADABLE_TAPROOT_VERSION"), (unsigned int)SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_TAPROOT_VERSION},
+    {std::string("DISCOURAGE_UPGRADABLE_CHECKTEMPLATEVERIFY"), (unsigned int)SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_CHECKTEMPLATEVERIFY},
+    {std::string("DISCOURAGE_LNHANCE"), (unsigned int)SCRIPT_VERIFY_DISCOURAGE_LNHANCE},
+    {std::string("LNHANCE"), (unsigned int)SCRIPT_VERIFY_LNHANCE},
 };
 
 unsigned int ParseScriptFlags(std::string strFlags)
@@ -149,6 +152,9 @@ bool CheckTxScripts(const CTransaction& tx, const std::map<COutPoint, CScript>& 
 
 unsigned int TrimFlags(unsigned int flags)
 {
+    // !LNHANCE requires !DISCOURGE_OP_SUCCESS
+    if (!(flags & SCRIPT_VERIFY_LNHANCE)) flags &= ~(unsigned int)SCRIPT_VERIFY_DISCOURAGE_OP_SUCCESS;
+
     // WITNESS requires P2SH
     if (!(flags & SCRIPT_VERIFY_P2SH)) flags &= ~(unsigned int)SCRIPT_VERIFY_WITNESS;
 
